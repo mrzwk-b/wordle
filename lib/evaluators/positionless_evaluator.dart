@@ -5,11 +5,11 @@ class PositionlessEvaluator implements Evaluator {
   @override
   int worstValue = 25600;
 
-  Map<String, int> rankings;
+  final Map<String, int> rankings;
   PositionlessEvaluator(Map<String, LetterDistribution> distribution):
     rankings = (() {
       final Map<String, int> letterTotals = distribution.map((key, value) => MapEntry(key, value.total),);
-      final List<String> letters = letterTotals.keys.toList()..sort();
+      final List<String> letters = letterTotals.keys.toList();
       final List<int> sortedTotals = letterTotals.values.toList()..sort(
         (int a, int b) => a == b ? 0 : a > b ? -1 : 1
       );
