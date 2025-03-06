@@ -1,13 +1,13 @@
 import 'package:wordle/distribution.dart';
 import 'package:wordle/optimizer.dart';
 
-class ContextlessPositionalEvaluator implements Evaluator {
+class PositionalEvaluator implements Evaluator {
   final Map<String, List<int>> rankings;
   
   @override
-  int worstValue = 25600; // TODO
+  int worstValue = 0;
 
-  ContextlessPositionalEvaluator(Map<String, LetterDistribution> distribution):
+  PositionalEvaluator(Map<String, LetterDistribution> distribution):
     rankings = (() {
       final Map<String, List<int>> rankings = {};
       final List<String> letters = distribution.keys.toList();
@@ -29,24 +29,19 @@ class ContextlessPositionalEvaluator implements Evaluator {
   ;
 
   @override
-  bool betterThan(int a, int b) => a < b;
+  bool betterThan(int a, int b) => a > b;
 
   @override
   int evaluate(String word) {
-    List<String> letters = word.split("");
+    final Set<String> seen = {};
+    final List<String> letters = word.split("");
     int value = 0;
     for (int i = 0; i < 5; i++) {
-      value += rankings[letters[i]]![i];
-    }
-    // punish double letters
-    for (int i = 0; i < 5; i++) {
-      for (int j = i + 1; j < 5; j++) {
-        if (word[i] == word[j]) {
-          value *= 2;
-        }
+      if (!seen.contains(letters[i])) {
+        value += rankings[letters[i]]![i];
+        seen.add(letters[i]);
       }
     }
     return value;
   }
-
 }

@@ -8,7 +8,10 @@ import 'package:wordle/optimizer.dart';
 import 'package:wordle/scrape.dart';
 
 void main(List<String> argStrs) async {
-  ArgResults args = (ArgParser()..addOption("today", abbr: 't')).parse(argStrs);
+  ArgResults args = (ArgParser()
+    ..addOption("today", abbr: 't')
+    ..addFlag("play", abbr: 'p')
+  ).parse(argStrs);
 
   late final Set<String> possible;
   late final Set<String> past;
@@ -28,10 +31,10 @@ void main(List<String> argStrs) async {
     "${optimal(options, PositionlessEvaluator(distribution))}"
   );
   print(
-    "opener (ContextlessPositional): "
-    "${optimal(options, ContextlessPositionalEvaluator(distribution))}"
+    "opener (Positional): "
+    "${optimal(options, PositionalEvaluator(distribution))}"
   );
-  while (true) {
+  while (args.flag("play")) {
     print("enter a word to see if it's a possible answer:");
     print(options.contains(stdin.readLineSync()) ? "yes" : "no");
   }
