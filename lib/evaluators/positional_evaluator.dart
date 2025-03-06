@@ -5,9 +5,9 @@ class PositionalEvaluator implements Evaluator {
   final Map<String, List<int>> rankings;
   
   @override
-  int worstValue = 0;
+  final int worstValue = 0;
 
-  PositionalEvaluator(Map<String, LetterDistribution> distribution):
+  PositionalEvaluator(Map<String, FrequencyDistribution> distribution):
     rankings = (() {
       final Map<String, List<int>> rankings = {};
       final List<String> letters = distribution.keys.toList();

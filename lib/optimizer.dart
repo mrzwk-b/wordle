@@ -1,5 +1,5 @@
 abstract interface class Evaluator {
-  int worstValue = 0;
+  final int worstValue = 0;
   bool betterThan(int a, int b);
   int evaluate(String word);
 }

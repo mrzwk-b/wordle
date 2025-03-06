@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:wordle/distribution.dart';
-import 'package:wordle/evaluators/contextless_positional_evaluator.dart';
+import 'package:wordle/evaluators/contextual_evaluator.dart';
+import 'package:wordle/evaluators/positional_evaluator.dart';
 import 'package:wordle/evaluators/positionless_evaluator.dart';
 import 'package:wordle/optimizer.dart';
 import 'package:wordle/scrape.dart';
@@ -25,7 +26,7 @@ void main(List<String> argStrs) async {
   }
 
   final Set<String> options = possible.difference(past);
-  final Map<String, LetterDistribution> distribution = getDistribution(options);
+  final Map<String, FrequencyDistribution> distribution = getFrequencyDistributions(options);
   print(
     "opener (Positionless): "
     "${optimal(options, PositionlessEvaluator(distribution))}"
@@ -33,6 +34,10 @@ void main(List<String> argStrs) async {
   print(
     "opener (Positional): "
     "${optimal(options, PositionalEvaluator(distribution))}"
+  );
+  print(
+    "opener (Contextual): "
+    "${optimal(options, ContextualEvaluator(getContextualDistributions(options)))}"
   );
   while (args.flag("play")) {
     print("enter a word to see if it's a possible answer:");

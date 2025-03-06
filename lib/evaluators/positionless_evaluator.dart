@@ -3,10 +3,10 @@ import 'package:wordle/optimizer.dart';
 
 class PositionlessEvaluator implements Evaluator {
   @override
-  int worstValue = 0;
+  final int worstValue = 0;
 
   final Map<String, int> rankings;
-  PositionlessEvaluator(Map<String, LetterDistribution> distribution):
+  PositionlessEvaluator(Map<String, FrequencyDistribution> distribution):
     rankings = (() {
       final Map<String, int> letterTotals = distribution.map((key, value) => MapEntry(key, value.total),);
       final List<String> letters = letterTotals.keys.toList();
