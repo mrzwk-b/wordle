@@ -1,4 +1,4 @@
-import 'package:wordle/util.dart';
+import 'package:wordle/data/util.dart';
 
 class FrequencyDistribution {
   int total;

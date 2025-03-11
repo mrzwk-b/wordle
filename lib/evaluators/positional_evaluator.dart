@@ -1,4 +1,4 @@
-import 'package:wordle/distribution.dart';
+import 'package:wordle/data/distribution.dart';
 import 'package:wordle/evaluators/evaluator.dart';
 
 class PositionalEvaluator implements Evaluator {
