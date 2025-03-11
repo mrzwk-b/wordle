@@ -1,3 +1,5 @@
+import 'package:wordle/util.dart';
+
 class FrequencyDistribution {
   int total;
   List<int> positionCounts;
@@ -23,7 +25,7 @@ Map<String, FrequencyDistribution> getFrequencyDistributions(Iterable<String> wo
 }
 
 /// contains lists of letters sorted by how common they are preceding and following a letter,
-/// most common to least common
+/// least common to most common
 /// 
 /// the `null` item in each list indicates a word boundary
 class ContextualDistribution {
@@ -31,11 +33,6 @@ class ContextualDistribution {
   List<String?> following;
   ContextualDistribution(this.preceding, this.following);
 }
-
-List<T> rank<T>(Map<T, int> items) => (
-  items.entries.toList()..sort((a, b) => a.value - b.value)
-).map((item) => item.key).toList();
-  
 
 Map<String, ContextualDistribution> getContextualDistributions(Iterable<String> words) {
   final List<String> alphabet = List.generate(26, (i) => String.fromCharCode(i + 97));
@@ -71,8 +68,8 @@ Map<String, ContextualDistribution> getContextualDistributions(Iterable<String> 
   }
   return {
     for (final String letter in alphabet) letter: ContextualDistribution(
-      rank(antecedents[letter]!),
-      rank(sequents[letter]!)
+      rank(antecedents[letter]!, increasing: true),
+      rank(sequents[letter]!, increasing: true)
     )
   };
 }

@@ -1,5 +1,5 @@
 import 'package:wordle/distribution.dart';
-import 'package:wordle/optimizer.dart';
+import 'package:wordle/evaluators/evaluator.dart';
 
 class PositionlessEvaluator implements Evaluator {
   @override
@@ -18,7 +18,7 @@ class PositionlessEvaluator implements Evaluator {
   ;
 
   @override
-  bool betterThan(int a, int b) => a > b;
+  int compare(int a, int b) => a - b;
 
   @override
   int evaluate(String word) {

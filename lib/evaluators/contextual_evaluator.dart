@@ -1,5 +1,5 @@
 import 'package:wordle/distribution.dart';
-import 'package:wordle/optimizer.dart';
+import 'package:wordle/evaluators/evaluator.dart';
 
 class ContextualEvaluator implements Evaluator {
   @override
@@ -9,7 +9,7 @@ class ContextualEvaluator implements Evaluator {
   ContextualEvaluator(this.distribution);
 
   @override
-  bool betterThan(int a, int b) => a > b;
+  int compare(int a, int b) => a - b;
 
   @override
   int evaluate(String word) {
@@ -23,7 +23,7 @@ class ContextualEvaluator implements Evaluator {
         value += distribution[word[i]]!.preceding.indexOf(context);
         // following
         context = i == 4 ? null : word[i+1];
-        value += distribution[word[i]]!.preceding.indexOf(context);
+        value += distribution[word[i]]!.following.indexOf(context);
 
         seen.add(word[i]);
       }
