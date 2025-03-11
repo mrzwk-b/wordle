@@ -18,9 +18,7 @@ class WordQuery extends Query {
     (options.contains(word) ?
       // rank and score for a word from each evaluator
       [for (String evaluatorName in evaluators.keys) 
-        "$evaluatorName: "
-        "${evaluations[evaluatorName]![word]} pts, "
-        "${rankings[evaluatorName]!.indexOf(word) + 1} / ${options.length}"
+        "$evaluatorName: ${evaluationReport(evaluatorName, word)}" 
       ].join("\n") 
     :
       // or what sets it's in, if options isn't one of them
