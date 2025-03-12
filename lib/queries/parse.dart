@@ -12,6 +12,9 @@ Query parse(String input) {
       return HelpQuery();
 
     case 'l':
+      if (queryArgs.length == 1) {
+        return LetterQuery();
+      }
       if (queryArgs.length != 2) {
         throw QueryException("expected 1 argument for LetterQuery, found ${queryArgs.length - 1}");
       }

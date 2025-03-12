@@ -11,6 +11,7 @@ class HelpQuery extends Query {
     '     total frequency, frequency in each slot,\n'
     '     and letters sorted by how often they precede and follow it,\n'
     '     sorted least to most common (# is the word boundary)\n'
+    '     alternatively, pass no argument to see data for all letters'
     '  v: evaluator\n'
     '     pass an evaluator name, a number of words to fetch,\n'
     '     optionally an offset, and a - if you want to fetch from the bottom\n'
