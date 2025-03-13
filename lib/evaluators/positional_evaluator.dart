@@ -10,17 +10,16 @@ class PositionalEvaluator implements Evaluator {
   PositionalEvaluator(Map<String, FrequencyDistribution> distribution):
     rankings = (() {
       final Map<String, List<int>> rankings = {};
-      final List<String> letters = distribution.keys.toList();
-      for (final String letter in letters) {
+      for (final String letter in alphabet) {
         rankings[letter] = List.filled(5, 0);
       }
       for (int i = 0; i < 5; i++) {
         final List<int> countsInPosition = [];
-        for (final String letter in letters) {
+        for (final String letter in alphabet) {
           countsInPosition.add(distribution[letter]!.positionCounts[i]);
         }
         countsInPosition.sort();
-        for (final String letter in letters) {
+        for (final String letter in alphabet) {
           rankings[letter]![i] = countsInPosition.indexOf(distribution[letter]!.positionCounts[i]);
         }
       }

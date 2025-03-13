@@ -1,5 +1,7 @@
 import 'package:wordle/data/data.dart';
 
+final List<String> alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+
 class FrequencyDistribution {
   int total;
   List<int> positionCounts;
@@ -11,14 +13,12 @@ class FrequencyDistribution {
 }
 
 Map<String, FrequencyDistribution> getFrequencyDistributions(Iterable<String> words) {
-  final Map<String, FrequencyDistribution> distributions = {};
+  final Map<String, FrequencyDistribution> distributions = {
+    for (String letter in alphabet) letter: FrequencyDistribution(List.filled(5, 0))
+  };
   for (final String word in words) {
     for (int i = 0; i < word.length; i++) {
-      final String letter = word[i];
-      if (!distributions.containsKey(letter)) {
-        distributions[letter] = FrequencyDistribution(List.filled(5, 0));
-      }
-      distributions[letter]!.add(i);
+      distributions[word[i]]!.add(i);
     }
   }
   return distributions;
@@ -35,7 +35,6 @@ class ContextualDistribution {
 }
 
 Map<String, ContextualDistribution> getContextualDistributions(Iterable<String> words) {
-  final List<String> alphabet = List.generate(26, (i) => String.fromCharCode(i + 97));
   // maps for counting frequencies of occurrence for each letter combination
   final Map<String, Map<String?, int>> antecedents = {
     for (final String letter in alphabet) letter: {
