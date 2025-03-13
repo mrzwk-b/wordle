@@ -48,24 +48,7 @@ bool isMatch(final String word, final String pattern) {
           case '?':
             throw QueryException('"?" cannot occur in fixed expression query');
           case '_':
-            if (patternIndex + 1 < pattern.length && pattern[patternIndex+1] == '*') {
-              while (wordIndex < 5 && isLetterMatch(word[wordIndex], pattern[patternIndex])) {
-                wordIndex++;
-              }
-              patternIndex++;
-            }
-            else if (pattern[patternIndex] == '+') {
-              if (wordIndex >= 5) {
-                return false;
-              }
-              while (wordIndex < 5 && isLetterMatch(word[wordIndex], pattern[patternIndex])) {
-                wordIndex++;
-              }
-              patternIndex++;
-            }
-            else {
-              wordIndex++;
-            }
+            wordIndex++;
           ;
           default:
             matching &= word[wordIndex] == pattern[patternIndex];
@@ -83,7 +66,7 @@ bool isMatch(final String word, final String pattern) {
 }
 
 List<String> getMatchingLetters(final String word, final String pattern) {
-  List<String> matchingLetters = [];
+  final List<String> matchingLetters = [];
   for (String letter in alphabet) {
     if (isMatch(word, pattern.replaceAll('?', letter))) {
       matchingLetters.add(letter);
