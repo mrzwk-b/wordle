@@ -36,6 +36,4 @@ the following are valid query types:
       #: word boundary
       $: generic consonant
       _: placeholder
-      *: optional repeater (matches the previous token any number of times)
-      +: mandatory repeater (matches the previous token one or more times)
       ?: variable

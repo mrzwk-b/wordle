@@ -2,7 +2,7 @@ import 'package:wordle/data/data.dart';
 import 'package:wordle/data/distribution.dart';
 import 'package:wordle/queries/query.dart';
 
-const Set<String> specialCharacters = {r'@', r'#', r'$', r'_', r'*', r'+', r'?'};
+const Set<String> specialCharacters = {r'@', r'#', r'$', r'_', r'?'};
 const Set<String> vowels = {'a', 'e', 'i', 'o', 'u', 'y'};
 const Set<String> consonants = {'b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'};
 
@@ -21,12 +21,17 @@ class ExpressionQuery extends Query {
   String pattern;
 
   ExpressionQuery(this.pattern) {
-    if (RegExp('[^a-z${specialCharacters.join()}]').hasMatch(pattern)) {
-      throw QueryException('ExpressionQuery requires valid pattern, received $pattern');
+    Iterable<RegExpMatch> matches = RegExp('[^a-z${specialCharacters.join()}]').allMatches(pattern);
+    if (matches.length != 0) {
+      throw QueryException(
+        '"${matches.map((match) => match.group(0)).join('", "')}" '
+        '${matches.length > 1 ? 'are not valid characters' : 'is not a valid character'} '
+        'of an ExpressionQuery'
+      );
     }
   }
 
-  bool isMatch(final String word) { // TODO fix issues with @ and $
+  bool isMatch(final String word) {
     // loop through the whole word
     for (int wordStart = 0; wordStart < 5; wordStart++) {
       // start trying to match the pattern from where we are in the word
@@ -39,43 +44,19 @@ class ExpressionQuery extends Query {
         else if (wordIndex < 5) {
           switch (pattern[patternIndex]) {
             case '@':
-              if (patternIndex + 1 < pattern.length && pattern[patternIndex+1] == '*') {
-                while (wordIndex < 5 && isLetterMatch(word[wordIndex], pattern[patternIndex])) {
-                  wordIndex++;
-                }
-                patternIndex++;
+              if (!vowels.contains(word[wordIndex])) {
+                matching = false;
               }
               else {
-                if (!vowels.contains(word[wordIndex])) {
-                  wordIndex++;
-                  matching = false;
-                }
-                if (patternIndex + 1 < pattern.length && pattern[patternIndex+1] == '+') {
-                  while (wordIndex < 5 && isLetterMatch(word[wordIndex], pattern[patternIndex])) {
-                    wordIndex++;
-                  }
-                  patternIndex++;
-                }
+                wordIndex++;
               }
             ;
             case r'$':
-              if (patternIndex + 1 < pattern.length && pattern[patternIndex+1] == '*') {
-                while (wordIndex < 5 && isLetterMatch(word[wordIndex], pattern[patternIndex])) {
-                  wordIndex++;
-                }
-                patternIndex++;
+              if (!consonants.contains(word[wordIndex])) {
+                matching = false;
               }
               else {
-                if (!consonants.contains(word[wordIndex])) {
-                  wordIndex++;
-                  matching = false;
-                }
-                if (patternIndex + 1 < pattern.length && pattern[patternIndex+1] == '+') {
-                  while (wordIndex < 5 && isLetterMatch(word[wordIndex], pattern[patternIndex])) {
-                    wordIndex++;
-                  }
-                  patternIndex++;
-                }
+                wordIndex++;
               }
             ;
             case '?':
