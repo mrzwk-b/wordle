@@ -1,5 +1,6 @@
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
+import 'package:wordle/queries/expression_query.dart';
 import 'package:wordle/queries/help_query.dart';
 import 'package:wordle/queries/letter_query.dart';
 import 'package:wordle/queries/query.dart';
@@ -158,7 +159,10 @@ Query parse(String input) {
       return WordQuery(queryArgs[1]);
 
     case 'x':
-      throw UnimplementedError("ExpressionQuery is not yet implemented");
+      if (queryArgs.length != 2) {
+        throw QueryException("expected 1 argument for ExpressionQuery, found ${queryArgs.length - 1}");
+      }
+      return ExpressionQuery(queryArgs[1]);
       
     default:
       throw QueryException('"${queryArgs[0]}" does not correspond to a valid query type');

@@ -29,10 +29,13 @@ the following are valid query types:
     2 types: fixed and variable
     fixed: shows a list of all words that match
     variable: shows a list of all letters ranked by how many matches they have
-              when plugged in for the variable placeholder
+              when plugged in for the variable token "?"
     patterns can be shorter than 5 characters
     consist of letters and the following special characters:
       @: generic vowel
       #: word boundary
       $: generic consonant
-      ?: variable placeholder
+      _: placeholder
+      *: optional repeater (matches the previous token any number of times)
+      +: mandatory repeater (matches the previous token one or more times)
+      ?: variable
