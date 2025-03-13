@@ -1,0 +1,38 @@
+the following are valid query types:
+  l letter
+    pass a single letter as an argument to see its distribution
+    total frequency, frequency in each slot,
+    and letters sorted by how often they precede and follow it,
+    sorted least to most common (# is the word boundary)
+    e.g, "l e" to see data for "e"
+    alternatively, pass no argument to see data for all letters
+    i.e., "l"
+  v evaluator
+    pass an evaluator name, a number of words to fetch,
+    optionally an offset, and a - if you want to fetch from the bottom
+    displays the word along with its score and rank according to that evaluator
+    e.g., "v positional 10 5 -" to see the bottom 15 words minus the bottom 5 per the positional evaluator
+    alternatively, pass a range to see results for all words within that range
+    range boundaries can be specified by either score or word
+    ranges must contain a ":", but do not require either an upper or lower bound
+    ranges formatted as "start:end"
+    e.g., "v positional :50" to see all words with a score less than 50 with no lower bound
+          "v positional chose:" to see all words with a score at least as high as that of "chose"
+    list of all evaluator names:
+      positionless, positional, contextual
+  w word
+    pass a 5 letter word to see it evaluated by all evaluators
+    displays the word along with its score and rank according to that evaluator
+    e.g., "w chose" to see data for "chose"
+  x expression
+    pass a string to match against words
+    2 types: fixed and variable
+    fixed: shows a list of all words that match
+    variable: shows a list of all letters ranked by how many matches they have
+              when plugged in for the variable placeholder
+    patterns can be shorter than 5 characters
+    consist of letters and the following special characters:
+      @: generic vowel
+      #: word boundary
+      $: generic consonant
+      ?: variable placeholder
