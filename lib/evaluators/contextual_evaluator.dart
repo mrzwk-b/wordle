@@ -11,23 +11,23 @@ class ContextualEvaluator implements Evaluator {
   @override
   int compare(int a, int b) => a - b;
 
-  @override
-  int evaluate(String word) {
-    Set<String> seen = {};
-    int value = 0;
-    for (int i = 0; i < 5; i++) {
-      if (!seen.contains(word[i])) {
-        String? context;
-        // preceding
-        context = i == 0 ? null : word[i-1];
-        value += distribution[word[i]]!.preceding.indexOf(context);
-        // following
-        context = i == 4 ? null : word[i+1];
-        value += distribution[word[i]]!.following.indexOf(context);
+  int evaluateLetter(final String word, final int letterIndex) =>
+    distribution[word[letterIndex]]!.preceding.indexOf(letterIndex == 0 ? null : word[letterIndex-1]) +
+    distribution[word[letterIndex]]!.following.indexOf(letterIndex == 4 ? null : word[letterIndex+1])
+  ;
 
-        seen.add(word[i]);
-      }
+  @override
+  int evaluate(final String word) {
+    Map<String, int> letterValues = {};
+    for (int i = 0; i < 5; i++) {
+      letterValues.update(word[i],
+        (oldValue) {
+          int newValue = evaluateLetter(word, i);
+          return newValue > oldValue ? newValue : oldValue;
+        },
+        ifAbsent: () => evaluateLetter(word, i),
+      );
     }
-    return value;
+    return letterValues.values.reduce((a,b)=>a+b);
   }
 }

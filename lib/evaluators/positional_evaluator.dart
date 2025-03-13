@@ -31,16 +31,19 @@ class PositionalEvaluator implements Evaluator {
   int compare(int a, int b) => a - b;
 
   @override
-  int evaluate(String word) {
-    final Set<String> seen = {};
-    final List<String> letters = word.split("");
-    int value = 0;
+  int evaluate(final String word) {
+    final Map<String, int> letterValues = {};
     for (int i = 0; i < 5; i++) {
-      if (!seen.contains(letters[i])) {
-        value += rankings[letters[i]]![i];
-        seen.add(letters[i]);
-      }
+      letterValues.update(word[i],
+        (oldValue) => 
+          (rankings[word[i]]![i] > oldValue
+            ? rankings[word[i]]![i]
+            : oldValue
+          )
+        ,
+        ifAbsent: () => rankings[word[i]]![i]
+      );
     }
-    return value;
+    return letterValues.values.reduce((a,b)=>a+b);
   }
 }

@@ -20,7 +20,7 @@ class PositionlessEvaluator implements Evaluator {
   int compare(int a, int b) => a - b;
 
   @override
-  int evaluate(String word) {
+  int evaluate(final String word) {
     final Set<String> seen = {};
     final List<String> letters = word.split("");
     int value = 0;
