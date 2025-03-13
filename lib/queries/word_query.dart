@@ -14,15 +14,13 @@ class WordQuery extends Query {
   }
 
   @override
-  String execute() =>
-    (options.contains(word) ?
-      // rank and score for a word from each evaluator
-      [for (String evaluatorName in evaluators.keys) 
-        "$evaluatorName: ${evaluationReport(evaluatorName, word)}" 
-      ].join("\n") 
-    :
-      // or what sets it's in, if options isn't one of them
-      (past.contains(word) ? "already been used" : "not an answer")
-    )
-  ;
+  String execute() => [
+    options.contains(word)
+      ? ''
+      : '${past.contains(word) ? 'already been used' : 'not an answer'}, but hypothetically:'
+    ,
+    for (String evaluatorName in evaluators.keys) 
+      '$evaluatorName: ${evaluationReport(evaluatorName, word)}'
+    ,
+  ].join('\n');
 }

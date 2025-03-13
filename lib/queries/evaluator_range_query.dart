@@ -34,7 +34,10 @@ class EvaluatorRangeQuery extends Query {
     if (range.highScore != null || range.highWord != null) {
       // establish highScore
       if (range.highWord != null) {
-        range.highScore = wordEvaluations[range.highWord]!;
+        range.highScore = wordEvaluations.containsKey(range.highWord)
+          ? wordEvaluations[range.highWord]!
+          : evaluators[evaluatorName]!.evaluate(range.highWord!)
+        ;
       }
       // find latest index of word with score at most highScore
       start = wordRankings.indexOf(wordRankings.firstWhere(
@@ -47,7 +50,10 @@ class EvaluatorRangeQuery extends Query {
     if (range.lowScore != null || range.lowWord != null) {
       // establish lowScore
       if (range.lowWord != null) {
-        range.lowScore = wordEvaluations[range.lowWord]!;
+        range.lowScore = wordEvaluations.containsKey(range.lowWord)
+          ? wordEvaluations[range.lowWord]!
+          : evaluators[evaluatorName]!.evaluate(range.lowWord!)
+        ;
       }
       // find earliest index of word with score at least lowScore
       end = wordRankings.lastIndexWhere((word) => 
@@ -60,9 +66,9 @@ class EvaluatorRangeQuery extends Query {
   }
 
   @override
-  String execute() => 
+  String execute() =>
     [for (String word in getWordsInRange())
-      "$word: ${evaluationReport(evaluatorName, word)}"
+      '$word: ${evaluationReport(evaluatorName, word)}',
     ].join('\n')
   ;
 }

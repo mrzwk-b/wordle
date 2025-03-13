@@ -69,6 +69,13 @@ List<T> rank<T>(Map<T, int> items, {bool increasing = false}) => (
 ).map((item) => item.key).toList();
 
 String evaluationReport(String evaluatorName, String word) => 
-  "${evaluations[evaluatorName]![word]} pts, "
-  "${rankings[evaluatorName]!.indexOf(word) + 1} / ${options.length}"
+  (options.contains(word)
+    ? (
+      '${evaluations[evaluatorName]![word]} pts, '
+      '${rankings[evaluatorName]!.indexOf(word) + 1} / ${options.length}'
+    )
+    : ( 
+      '${evaluators[evaluatorName]!.evaluate(word)} pts'   
+    )
+  )
 ;
