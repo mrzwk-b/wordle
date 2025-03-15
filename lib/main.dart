@@ -7,7 +7,8 @@ import 'package:wordle/queries/query.dart';
 
 void main(List<String> argStrs) async {
   final ArgResults args = (ArgParser()..addOption("today", abbr: 't')).parse(argStrs);
-  await initializeData(args.option("today"));
+  await scrapeData(args.option("today"));
+  initializeData();
 
   while (true) {
     print("enter a query (h for help):");

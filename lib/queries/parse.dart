@@ -1,6 +1,7 @@
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
 import 'package:wordle/queries/expression_query.dart';
+import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/help_query.dart';
 import 'package:wordle/queries/letter_query.dart';
 import 'package:wordle/queries/query.dart';
@@ -9,6 +10,18 @@ import 'package:wordle/queries/word_query.dart';
 Query parse(String input) {
   List<String> queryArgs = input.split(" ");
   switch (queryArgs[0]) {
+    case 'g':
+      if (queryArgs.length != 3) {
+        throw QueryException("expected 2 arguments for ExpressionQuery, found ${queryArgs.length - 1}");
+      }
+      if (!(queryArgs[1].length == 5 && RegExp("[a-z]{5}").hasMatch(queryArgs[1]))) {
+        throw QueryException('expected 5 letter alphabetic argument for word of GuessQuery, found "${queryArgs[1]}"');
+      }
+      if (!(queryArgs[2].length == 5 && RegExp("[bgy]{5}").hasMatch(queryArgs[2]))) {
+        throw QueryException('expected 5 letter "bgy"-only argument for result of GuessQuery, found "${queryArgs[2]}"');
+      }
+      return GuessQuery(queryArgs[1], queryArgs[2]);
+
     case 'h':
       return HelpQuery();
 

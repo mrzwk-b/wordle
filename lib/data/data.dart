@@ -7,26 +7,30 @@ import 'package:wordle/evaluators/positionless_evaluator.dart';
 
 late final Set<String> possible;
 late final Set<String> past;
-late final Set<String> options;
+late Set<String> options;
 
-late final Map<String, FrequencyDistribution> frequencyDistribution;
-late final List<String> frequencyRankings;
-late final Map<String, ContextualDistribution> contextualDistribution;
+late Map<String, FrequencyDistribution> frequencyDistribution;
+late List<String> frequencyRankings;
+late Map<String, ContextualDistribution> contextualDistribution;
 
-late final Map<String, Evaluator> evaluators;
-late final Map<String, Map<String, int>> evaluations;
+late Map<String, Evaluator> evaluators;
+late Map<String, Map<String, int>> evaluations;
 /// kept in decreasing order
-late final Map<String, List<String>> rankings;
+late Map<String, List<String>> rankings;
 
-Future<void> initializeData(String? today) async{
+Future<void> scrapeData(String? today) async {
   // scrape data and set up basic sets
   for (final Future assignment in [
     getPossibleAnswers().then((result) {possible = result;}),
     getPastAnswers().then((result) {past = result;}),
   ]) await assignment;
+
   if (today != null) {
     past.add(today);
   }
+}
+
+void initializeData() {
   options = possible.difference(past);
 
   // process interesting data
@@ -59,6 +63,59 @@ Future<void> initializeData(String? today) async{
       )
     ));
   ;
+}
+
+void reflectChange({
+  List<String?> blank = const [],
+  List<String?> yellow = const [],
+  List<String?> green = const []
+}) {
+  // get the letters that need to be included
+  final Map<String, int> include = {};
+  for (String? letter in yellow) {
+    if (letter != null) {
+      include.update(letter, (count) => count + 1, ifAbsent: () => 1);
+    }
+  }
+  // get the letters that need to be excluded
+  final Set<String> forbidden = {};
+  for (String? letter in blank) {
+    if (letter != null) {
+      forbidden.add(letter);
+    }
+  }
+  // filter [possible]
+  for (String word in possible.toList(growable: false)) {
+    final Map<String, int> letterCounts = {};
+    // scan word for illegal letters
+    for (int i = 0; i < 5; i++) {
+      // if there is a green to check
+      if (green[i] != null) {
+        // remove if it's not satisfied
+        if (green[i] != word[i]) {
+          possible.remove(word);
+          break;
+        }
+      }
+      else {
+        // if letter in position is illegal, remove
+        if (forbidden.contains(word[i]) || yellow[i] == word[i]) {
+          possible.remove(word);
+          break;
+        }
+        // take count for comparison with [include]
+        letterCounts.update(word[i], (count) => count + 1, ifAbsent: () => 1);
+      }
+    }
+    // make sure all values in [include] are accounted for
+    for (String letter in include.keys) {
+      if ((letterCounts[letter] ?? 0) < include[letter]!) {
+        possible.remove(word);
+        break;
+      }
+    }
+  }
+  initializeData();
 }
 
 List<T> rank<T>(Map<T, int> items, {bool increasing = false}) => (
