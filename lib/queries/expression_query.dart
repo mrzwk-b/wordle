@@ -1,4 +1,5 @@
 import 'package:wordle/data/data.dart';
+import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/data/distribution.dart';
 import 'package:wordle/queries/query.dart';
 
@@ -91,9 +92,10 @@ class ExpressionQuery extends Query {
 
   @override
   String execute() {
+    DataManager dm = DataManager();
     if (pattern.contains('?')) {
       int unmatchedWordCount = 0;
-      final Iterable<List<String>> letterMatchesByWord = options.map((word) => getMatchingLetters(word, pattern));
+      final Iterable<List<String>> letterMatchesByWord = dm.data.options.map((word) => getMatchingLetters(word, pattern));
       final Map<String, int> letterMatchCounts = Map.fromIterable(alphabet,
         key: (letter) => letter,
         value: (letter) => 0,
@@ -118,7 +120,7 @@ class ExpressionQuery extends Query {
     }
     else {
       List<String> results = [
-        for (final String word in options.where((word) => isMatch(word, pattern))) word
+        for (final String word in dm.data.options.where((word) => isMatch(word, pattern))) word
       ];
       return 
         "${results.join('\n')}\n\n"

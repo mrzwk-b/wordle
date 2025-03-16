@@ -1,4 +1,4 @@
-import 'package:wordle/data/data.dart';
+import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
 
 class LetterQuery extends Query {
@@ -16,23 +16,24 @@ class LetterQuery extends Query {
   }
 
   @override
-  String execute() =>
-    (letter == null ? 
-      [for (String l in frequencyRankings)
+  String execute() {
+    DataManager dm = DataManager();
+    return (letter == null ? 
+      [for (String l in dm.data.frequencyRankings)
         "$l: "
-        "${frequencyDistribution[l]!.positionCounts} "
-        "total: ${frequencyDistribution[l]!.total}, "
+        "${dm.data.frequencyDistribution[l]!.positionCounts} "
+        "total: ${dm.data.frequencyDistribution[l]!.total}, "
       ].join('\n')
     :
-      "${frequencyDistribution[letter]!.positionCounts}\n"
-      "total: ${frequencyDistribution[letter]!.total}, "
-      "${frequencyRankings.indexOf(letter!) + 1} / 26\n"
+      "${dm.data.frequencyDistribution[letter]!.positionCounts}\n"
+      "total: ${dm.data.frequencyDistribution[letter]!.total}, "
+      "${dm.data.frequencyRankings.indexOf(letter!) + 1} / 26\n"
       "preceding: {\n  ${[
-        for (String? antecedent in contextualDistribution[letter]!.preceding) "${antecedent ?? '#'}"
+        for (String? antecedent in dm.data.contextualDistribution[letter]!.preceding) "${antecedent ?? '#'}"
       ].join(", ")}\n}\n"
       "following: {\n  ${[
-        for (String? sequent in contextualDistribution[letter]!.following) "${sequent ?? '#'}"
+        for (String? sequent in dm.data.contextualDistribution[letter]!.following) "${sequent ?? '#'}"
       ].join(", ")}\n}"
-    )
-  ;
+    );
+  }
 }

@@ -64,3 +64,15 @@ Future<Set<String>> getPossibleAnswers() async {
 
   return words.map((word) => word.toLowerCase()).toSet();
 }
+
+Future<Set<String>> scrapePossible() async {
+  return await getPossibleAnswers();
+}
+
+Future<Set<String>> scrapePast(String? today) async {
+  Set<String> past = await getPastAnswers();
+  if (today != null) {
+    past.add(today);
+  }
+  return past;
+}

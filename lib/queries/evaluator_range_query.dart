@@ -1,4 +1,4 @@
-import 'package:wordle/data/data.dart';
+import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
 
 class Range {
@@ -17,17 +17,18 @@ class Range {
 }
 
 class EvaluatorRangeQuery extends Query {
+  DataManager dm = DataManager();
   String evaluatorName;
   Range range;
   EvaluatorRangeQuery(this.evaluatorName, this.range) {
-    if (!evaluators.keys.contains(evaluatorName)) {
+    if (!dm.data.evaluators.keys.contains(evaluatorName)) {
       throw QueryException('EvaluatorRangeQuery requires name of valid evaluator, received "$evaluatorName"');
     }
   }
 
   Iterable<String> getWordsInRange() {
-    Map<String, int> wordEvaluations = evaluations[evaluatorName]!;
-    List<String> wordRankings = rankings[evaluatorName]!;
+    Map<String, int> wordEvaluations = dm.data.evaluations[evaluatorName]!;
+    List<String> wordRankings = dm.data.rankings[evaluatorName]!;
     int start = 0;
     int end = wordRankings.length;
     // find end index in rankings
@@ -36,7 +37,7 @@ class EvaluatorRangeQuery extends Query {
       if (range.highWord != null) {
         range.highScore = wordEvaluations.containsKey(range.highWord)
           ? wordEvaluations[range.highWord]!
-          : evaluators[evaluatorName]!.evaluate(range.highWord!)
+          : dm.data.evaluators[evaluatorName]!.evaluate(range.highWord!)
         ;
       }
       // find latest index of word with score at most highScore
@@ -52,7 +53,7 @@ class EvaluatorRangeQuery extends Query {
       if (range.lowWord != null) {
         range.lowScore = wordEvaluations.containsKey(range.lowWord)
           ? wordEvaluations[range.lowWord]!
-          : evaluators[evaluatorName]!.evaluate(range.lowWord!)
+          : dm.data.evaluators[evaluatorName]!.evaluate(range.lowWord!)
         ;
       }
       // find earliest index of word with score at least lowScore
@@ -68,7 +69,7 @@ class EvaluatorRangeQuery extends Query {
   @override
   String execute() =>
     [for (String word in getWordsInRange())
-      '$word: ${evaluationReport(evaluatorName, word)}',
+      '$word: ${dm.data.evaluationReport(evaluatorName, word)}',
     ].join('\n')
   ;
 }
