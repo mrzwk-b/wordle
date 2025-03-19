@@ -74,13 +74,19 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "yaml",
+      "rootUri": "file:///C:/Users/bmerk/AppData/Local/Pub/Cache/hosted/pub.dev/yaml-3.1.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "wordle",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-03-04T21:38:35.213799Z",
+  "generated": "2025-03-18T00:52:20.997273Z",
   "generator": "pub",
   "generatorVersion": "3.6.0",
   "flutterRoot": "file:///C:/Users/bmerk/flutter",

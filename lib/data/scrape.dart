@@ -16,9 +16,7 @@ Future<Set<String>> getPastAnswers() async {
   await for (final chunk in html) {
     buffer += utf8.decode(chunk);
     for (RegExpMatch match in regExp.allMatches(buffer)) {
-      assert(match.groupCount == 2);
-      assert(match[1]!.length == 5);
-      if (!words.contains(match[1])) words.add(match[1]!);
+      if (!words.contains(match[1])) words.add(match[1]!.toLowerCase());
     }
     // cut the buffer down to just big enough to almost hold another copy of the target string
     final int newStart = buffer.length - target.length; 
@@ -28,10 +26,10 @@ Future<Set<String>> getPastAnswers() async {
     );
   }
 
-  return words.map((word) => word.toLowerCase()).toSet();
+  return words;
 }
 
-Future<Set<String>> getPossibleAnswers() async {
+Future<Set<String>> scrapePossible() async {
   final Set<String> words = {};
 
   final html = await (
@@ -49,9 +47,6 @@ Future<Set<String>> getPossibleAnswers() async {
   await for (final chunk in html) {
     buffer += utf8.decode(chunk);
     for (RegExpMatch match in regExp.allMatches(buffer)) {
-      assert(match.groupCount == 3);
-      assert(match[1] == match[2]);
-      assert(match[1]!.length == 5);
       if (!words.contains(match[1])) words.add(match[1]!);
     }
     // cut the buffer down to just big enough to almost hold another copy of the target string
@@ -63,10 +58,6 @@ Future<Set<String>> getPossibleAnswers() async {
   }
 
   return words.map((word) => word.toLowerCase()).toSet();
-}
-
-Future<Set<String>> scrapePossible() async {
-  return await getPossibleAnswers();
 }
 
 Future<Set<String>> scrapePast(String? today) async {
