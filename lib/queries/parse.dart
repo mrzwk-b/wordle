@@ -23,7 +23,7 @@ Query parse(String input) {
       return GuessQuery(queryArgs[1], queryArgs[2]);
 
     case 'h':
-      return HelpQuery();
+      return HelpQuery(queryArgs.sublist(1));
 
     case 'l':
       if (queryArgs.length == 1) {
