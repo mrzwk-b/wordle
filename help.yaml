@@ -1,0 +1,116 @@
+- name: letter
+  abbr: l
+  msg:
+  - get data about a letter of the alphabet
+  - name: single argument
+    abbr: '1'
+    msg:
+    - pass a single letter as an argument to see its distribution, i.e.,
+    -
+      - total frequency,
+      - frequency in each slot,
+      - and letters sorted by how often they precede and follow it
+      -
+        - sorted least to most common
+        - (# represents a word boundary)
+    - e.g, "l e" to see data for "e"
+  - name: zero argument
+    abbr: '0'
+    msg:
+    - pass no argument to see data for all letters, i.e.,
+    -
+      - total frequency & frequency in each slot
+    - e.g., "l"
+- name: evaluator
+  abbr: v
+  msg:
+  - get a list of words from an evaluator
+  - name: ranked
+    abbr: k
+    msg:
+    - pass an evaluator name followed by, 
+    -
+      - a number of words to fetch,
+      - optionally 
+      -
+        - an number to offset the fetch by from the end of the list,
+        - a "-" if you want to fetch from the bottom instead of the top
+    - e.g., "v positional 10 5 -" to see the bottom 15 words minus the bottom 5 per the positional evaluator
+  - name: range
+    abbr: g
+    msg:
+    - pass a range to see results for all words within that range
+    -
+      - range boundaries can be specified by either numerical score or a word itself
+      - ranges must contain a ":", but do not require either an upper or lower bound
+      - ranges formatted as "start:end"
+    - e.g., 
+    - 
+      - '"v positional :50" to see all words with a score less than 50 with no lower bound'
+      - '"v positional chose:" to see all words with a score at least as high as that of "chose"'
+  - name: results
+    abbr: s
+    msg:
+    - for each word meeting the criteria specified in the query, displays 
+    -
+      - the word
+      - its score according to the given evaluator
+      - its rank out of the total number of options
+  - name: list
+    abbr: l
+    msg:
+    - positionless
+    - positional
+    - contextual
+
+- name: word
+  abbr: w
+  msg:
+  - pass a 5 letter word to see it evaluated by all evaluators
+  - displays the word along with its score and rank according to each evaluator
+  - e.g., "w chose" to see data for "chose"
+- name: expression
+  abbr: x
+  msg:
+    - pass a string to match against words
+    - name: fixed
+      abbr: f
+      msg:
+      - shows a list of all words that match the pattern provided
+      - e.g., "x \#_@" to get a list of all words whose second letter is a vowel
+    - name: variable
+      abbr: v
+      msg:
+      - shows a list of all letters ranked by how many matches they have
+      - when that letter is plugged in for the variable token "?"
+      - e.g., "x ?a" to see a list of letters ranked by how often they occur right before "a"
+    - name: patterns
+      abbr: p
+      msg:
+      - patterns can be shorter than 5 characters
+      - 'consist of letters and the following special characters:'
+      -
+        - '_: any letter'
+        - '@: any vowel'
+        - '$: any consonant'
+        - '#: word boundary'
+        - '?: variable'
+- name: guess
+  abbr: g
+  msg: 
+  - updates the set of possible words and all derived values
+  - based on the information Wordle gives after a word is guessed
+  - then prints the number of words remaining as options
+  - name: structure
+    abbr: s
+    msg:
+    - \"g", followed by the word you guessed, followed by the result of that guess
+    - e.g., "g slice bbbgy"
+  - name: colors
+    abbr: c
+    msg:
+    - "the 2nd argument of g (the guess' result) allows only 3 types of characters:"
+    -
+      - \"b" (blank) the letter guessed in that slot doesn't occur anywhere in the target word
+      - \"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word
+      - \"g" (green) the letter guessed in that slot occurs in that slot in the target word
