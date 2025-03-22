@@ -71,3 +71,20 @@ List<T> rank<T>(Map<T, int> items, {bool increasing = false}) => (
     (a, b) => b.value - a.value
   )
 ).map((item) => item.key).toList();
+
+List<Set<T>> rankWithTies<T>(Map<T, int> items, {bool increasing = false}) {
+  List<T> ranked = rank(items, increasing: increasing);
+  List<Set<T>> output = [];
+  Set<T> currentTier = {};
+  for (T item in ranked) {
+    if (currentTier.isEmpty || items[item] == items[currentTier.first]) {
+      currentTier.add(item);
+    }
+    else {
+      output.add(currentTier);
+      currentTier = {item};
+    }
+  }
+  output.add(currentTier);
+  return output;
+}

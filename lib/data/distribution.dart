@@ -29,8 +29,8 @@ Map<String, FrequencyDistribution> getFrequencyDistributions(Iterable<String> wo
 /// 
 /// the `null` item in each list indicates a word boundary
 class ContextualDistribution {
-  List<String?> preceding;
-  List<String?> following;
+  List<Set<String?>> preceding;
+  List<Set<String?>> following;
   ContextualDistribution(this.preceding, this.following);
 }
 
@@ -67,8 +67,8 @@ Map<String, ContextualDistribution> getContextualDistributions(Iterable<String> 
   }
   return {
     for (final String letter in alphabet) letter: ContextualDistribution(
-      rank(antecedents[letter]!, increasing: true),
-      rank(sequents[letter]!, increasing: true)
+      rankWithTies(antecedents[letter]!, increasing: true),
+      rankWithTies(sequents[letter]!, increasing: true)
     )
   };
 }

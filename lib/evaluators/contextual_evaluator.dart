@@ -12,8 +12,12 @@ class ContextualEvaluator implements Evaluator {
   int compare(int a, int b) => a - b;
 
   int evaluateLetter(final String word, final int letterIndex) =>
-    distribution[word[letterIndex]]!.preceding.indexOf(letterIndex == 0 ? null : word[letterIndex-1]) +
-    distribution[word[letterIndex]]!.following.indexOf(letterIndex == 4 ? null : word[letterIndex+1])
+    distribution[word[letterIndex]]!.preceding.indexWhere(
+      (tier) => tier.contains(letterIndex == 0 ? null : word[letterIndex-1])
+    ) +
+    distribution[word[letterIndex]]!.following.indexWhere(
+      (tier) => tier.contains(letterIndex == 4 ? null : word[letterIndex+1])
+    )
   ;
 
   @override

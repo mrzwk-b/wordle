@@ -28,12 +28,16 @@ class LetterQuery extends Query {
       "${dm.data.frequencyDistribution[letter]!.positionCounts}\n"
       "total: ${dm.data.frequencyDistribution[letter]!.total}, "
       "${dm.data.frequencyRankings.indexOf(letter!) + 1} / 26\n"
-      "preceding: {\n  ${[
-        for (String? antecedent in dm.data.contextualDistribution[letter]!.preceding) "${antecedent ?? '#'}"
-      ].join(", ")}\n}\n"
-      "following: {\n  ${[
-        for (String? sequent in dm.data.contextualDistribution[letter]!.following) "${sequent ?? '#'}"
-      ].join(", ")}\n}"
+      "preceding: {\n${[
+        for (Set<String?> antecedentTier in dm.data.contextualDistribution[letter]!.preceding) "  { ${
+          [for (String? antecedent in antecedentTier) "${antecedent ?? '#'}"].join(', ')
+        } }"
+      ].join(",\n")}\n}\n"
+      "following: {\n${[
+        for (Set<String?> sequentTier in dm.data.contextualDistribution[letter]!.following) "  { ${
+          [for (String? sequent in sequentTier) "${sequent ?? '#'}"].join(', ')
+        } }"
+      ].join(",\n")}\n}"
     );
   }
 }
