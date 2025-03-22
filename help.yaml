@@ -1,3 +1,7 @@
+msg:
+- to view information about something,
+- enter the help query from which you can see that option
+- followed by its given abbreviation
 - name: letter
   abbr: l
   msg:

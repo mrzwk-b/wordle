@@ -3,11 +3,19 @@ import 'dart:io';
 import 'package:wordle/queries/query.dart';
 import 'package:yaml/yaml.dart';
 
-final YamlList msgTree = loadYamlNode(File("help.yaml").readAsStringSync()) as YamlList;
+final YamlMap msgTree = loadYamlNode(File("help.yaml").readAsStringSync()) as YamlMap;
 
 /// searches the message tree for the entry containing the message to be displayed
 YamlList? find(YamlNode root, List<String> path) {
   if (root is YamlMap) {
+    if (root['name'] == null) {
+      if (path.isEmpty) {
+        return root['msg'];
+      }
+      else {
+        return find(root['msg'], path);
+      }
+    }
     // determine if this entry matches the head of path
     if (root['abbr'] == path[0]) {
       return find(root['msg'], path.sublist(1));
