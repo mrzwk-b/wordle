@@ -2,6 +2,25 @@ msg:
 - to view information about something,
 - enter the help query from which you can see that option
 - followed by its given abbreviation
+- name: guess
+  abbr: g
+  msg: 
+  - updates the set of possible words and all derived values
+  - based on the information Wordle gives after a word is guessed
+  - then prints the number of words remaining as options
+  - name: structure
+    abbr: s
+    msg:
+    - \"g", followed by the word you guessed, followed by the result of that guess
+    - e.g., "g slice bbbgy"
+  - name: colors
+    abbr: c
+    msg:
+    - "the 2nd argument of g (the guess' result) allows only 3 types of characters:"
+    -
+      - \"b" (blank) the letter guessed in that slot doesn't occur anywhere in the target word
+      - \"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word
+      - \"g" (green) the letter guessed in that slot occurs in that slot in the target word
 - name: letter
   abbr: l
   msg:
@@ -25,6 +44,12 @@ msg:
     -
       - total frequency & frequency in each slot
     - e.g., "l"
+- name: state
+  abbr: s
+  msg:
+  - reverts guess queries
+  - can take either a number of guesses to remove or a word
+  - if a word is passed, reverts to right before that word was guessed
 - name: evaluator
   abbr: v
   msg:
@@ -99,22 +124,3 @@ msg:
         - '$: any consonant'
         - '#: word boundary'
         - '?: variable'
-- name: guess
-  abbr: g
-  msg: 
-  - updates the set of possible words and all derived values
-  - based on the information Wordle gives after a word is guessed
-  - then prints the number of words remaining as options
-  - name: structure
-    abbr: s
-    msg:
-    - \"g", followed by the word you guessed, followed by the result of that guess
-    - e.g., "g slice bbbgy"
-  - name: colors
-    abbr: c
-    msg:
-    - "the 2nd argument of g (the guess' result) allows only 3 types of characters:"
-    -
-      - \"b" (blank) the letter guessed in that slot doesn't occur anywhere in the target word
-      - \"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word
-      - \"g" (green) the letter guessed in that slot occurs in that slot in the target word

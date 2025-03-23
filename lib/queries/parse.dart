@@ -1,3 +1,4 @@
+import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
 import 'package:wordle/queries/expression_query.dart';
@@ -5,9 +6,11 @@ import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/help_query.dart';
 import 'package:wordle/queries/letter_query.dart';
 import 'package:wordle/queries/query.dart';
+import 'package:wordle/queries/state_query.dart';
 import 'package:wordle/queries/word_query.dart';
 
 Query parse(String input) {
+  DataManager dm = DataManager();
   List<String> queryArgs = input.split(" ");
   switch (queryArgs[0]) {
     case 'g':
@@ -33,6 +36,27 @@ Query parse(String input) {
         throw QueryException("expected 1 argument for LetterQuery, found ${queryArgs.length - 1}");
       }
       return LetterQuery(queryArgs[1]);
+
+    case 's':
+      if (queryArgs.length != 2) {
+        throw QueryException("expected 1 argument for StateQuery, found ${queryArgs.length - 1}");
+      }
+      if (int.tryParse(queryArgs[1]) != null) {
+        int count = int.parse(queryArgs[1]);
+        if (dm.stack.length <= count) {
+          throw QueryException("cannot remove $count elements from a stack of length ${dm.stack.length}");
+        }
+        return StateQuery(count: count);
+      }
+      else {
+        if (!(queryArgs[1].length == 5 && RegExp("[a-z]{5}").hasMatch(queryArgs[1]))) {
+          throw QueryException("expected valid word as argument for StateQuery, found ${queryArgs[1]}");
+        }
+        if (!dm.stack.map((entry) => entry.name).contains(queryArgs[1])) {
+          throw QueryException('can\'t revert to before "${queryArgs[1]}" because it isn\'t in the stack');
+        }
+        return StateQuery(word: queryArgs[1]);
+      }
 
     case 'v':
       if (queryArgs.length < 3 || queryArgs.length > 5) {
