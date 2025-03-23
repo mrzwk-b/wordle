@@ -9,6 +9,10 @@ import 'package:wordle/queries/query.dart';
 import 'package:wordle/queries/state_query.dart';
 import 'package:wordle/queries/word_query.dart';
 
+bool isValidWord(String word) =>
+  word.length == 5 && RegExp("[a-z]{5}").hasMatch(word)
+;
+
 Query parse(String input) {
   DataManager dm = DataManager();
   List<String> queryArgs = input.split(" ");
@@ -17,7 +21,7 @@ Query parse(String input) {
       if (queryArgs.length != 3) {
         throw QueryException("expected 2 arguments for ExpressionQuery, found ${queryArgs.length - 1}");
       }
-      if (!(queryArgs[1].length == 5 && RegExp("[a-z]{5}").hasMatch(queryArgs[1]))) {
+      if (!isValidWord(queryArgs[1])) {
         throw QueryException('expected 5 letter alphabetic argument for word of GuessQuery, found "${queryArgs[1]}"');
       }
       if (!(queryArgs[2].length == 5 && RegExp("[bgy]{5}").hasMatch(queryArgs[2]))) {
@@ -49,7 +53,7 @@ Query parse(String input) {
         return StateQuery(count: count);
       }
       else {
-        if (!(queryArgs[1].length == 5 && RegExp("[a-z]{5}").hasMatch(queryArgs[1]))) {
+        if (!isValidWord(queryArgs[1])) {
           throw QueryException("expected valid word as argument for StateQuery, found ${queryArgs[1]}");
         }
         if (!dm.stack.map((entry) => entry.name).contains(queryArgs[1])) {
@@ -76,7 +80,7 @@ Query parse(String input) {
           int? highScore = int.tryParse(highWord);
           // word limit
           if (highScore == null) {
-            if (!(highWord.length == 5 && RegExp("[a-z]{5}").hasMatch(highWord))) {
+            if (!isValidWord(highWord)) {
               throw QueryException('expected 5 letter alphabetic word as limit, found "$highWord"');
             }
             return EvaluatorRangeQuery(queryArgs[1], Range(highWord: highWord));
@@ -95,7 +99,7 @@ Query parse(String input) {
           int? lowScore = int.tryParse(lowWord);
           // word limit
           if (lowScore == null) {
-            if (!(lowWord.length == 5 && RegExp("[a-z]{5}").hasMatch(lowWord))) {
+            if (!isValidWord(lowWord)) {
               throw QueryException('expected 5 letter alphabetic word as limit, found "$lowWord"');
             }
             return EvaluatorRangeQuery(queryArgs[1], Range(lowWord: lowWord));
@@ -118,7 +122,7 @@ Query parse(String input) {
           String highWord = wordLimits[1];
           int? lowScore = int.tryParse(lowWord);
           if (lowScore == null) {
-            if (!(lowWord.length == 5 && RegExp("[a-z]{5}").hasMatch(lowWord))) {
+            if (!isValidWord(lowWord)) {
               throw QueryException('expected 5 letter alphabetic word as limit, found "$lowWord"');
             }
           }
@@ -129,7 +133,7 @@ Query parse(String input) {
           }
           int? highScore = int.tryParse(highWord);
           if (highScore == null) {
-            if (!(highWord.length == 5 && RegExp("[a-z]{5}").hasMatch(highWord))) {
+            if (!isValidWord(highWord)) {
               throw QueryException('expected 5 letter alphabetic word as limit, found "$highWord"');
             }
           }
