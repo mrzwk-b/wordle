@@ -69,9 +69,13 @@ Query parse(String input) {
       return QuitQuery();
 
     case 's':
-      if (queryArgs.length != 2) {
+      if (queryArgs.length == 1) {
+        return StateQuery();
+      }
+      else if (queryArgs.length != 2) {
         throw QueryException("expected 1 argument for StateQuery, found ${queryArgs.length - 1}");
       }
+      
       if (int.tryParse(queryArgs[1]) != null) {
         int count = int.parse(queryArgs[1]);
         if (dm.stack.length <= count) {

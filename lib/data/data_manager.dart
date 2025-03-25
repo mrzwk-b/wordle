@@ -4,6 +4,9 @@ class StackEntry {
   final String name;
   final Data data;
   StackEntry(this.name, this.data);
+
+  @override
+  String toString() => '"$name"';
 }
 
 class DataManager {

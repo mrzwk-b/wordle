@@ -51,9 +51,12 @@ msg:
 - name: state
   abbr: s
   msg:
-  - reverts guess queries
-  - can take either a number of guesses to remove or a word
-  - if a word is passed, reverts to right before that word was guessed
+  - shows history of guess queries or reverts them
+  - pass no arguments to see history
+  - pass either a number of guesses or a guessed word to revert
+  -
+    - if a word is passed, reverts to right before that word was guessed
+    - if a number is passed, removes that many entries
 - name: evaluator
   abbr: v
   msg:
