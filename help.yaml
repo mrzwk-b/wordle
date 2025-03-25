@@ -44,6 +44,10 @@ msg:
     -
       - total frequency & frequency in each slot
     - e.g., "l"
+- name: quit
+  abbr: q
+  msg:
+  - quits the application
 - name: state
   abbr: s
   msg:

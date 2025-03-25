@@ -7,6 +7,7 @@ import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/help_query.dart';
 import 'package:wordle/queries/letter_query.dart';
 import 'package:wordle/queries/query.dart';
+import 'package:wordle/queries/quit_query.dart';
 import 'package:wordle/queries/state_query.dart';
 import 'package:wordle/queries/word_query.dart';
 
@@ -63,6 +64,9 @@ Query parse(String input) {
         throw QueryException("expected 1 argument for LetterQuery, found ${queryArgs.length - 1}");
       }
       return LetterQuery(queryArgs[1]);
+
+    case 'q':
+      return QuitQuery();
 
     case 's':
       if (queryArgs.length != 2) {
