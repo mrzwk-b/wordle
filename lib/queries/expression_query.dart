@@ -18,7 +18,7 @@ bool isLetterMatch(final String letter, final String pattern) =>
   }
 ;
 
-bool isMatch(final String word, final String pattern) {
+bool isWordMatch(final String word, final String pattern) {
   // loop through the whole word
   for (int wordStart = 0; wordStart < 5; wordStart++) {
     // start trying to match the pattern from where we are in the word
@@ -65,7 +65,7 @@ bool isMatch(final String word, final String pattern) {
 List<String> getMatchingLetters(final String word, final String pattern) {
   final List<String> matchingLetters = [];
   for (String letter in alphabet) {
-    if (isMatch(word, pattern.replaceAll('?', letter))) {
+    if (isWordMatch(word, pattern.replaceAll('?', letter))) {
       matchingLetters.add(letter);
     }
   }
@@ -73,9 +73,9 @@ List<String> getMatchingLetters(final String word, final String pattern) {
 }
 
 class ExpressionQuery extends Query {
-  String pattern;
-  Map<String, int> include;
-  Set<String> exclude;
+  final String pattern;
+  final Map<String, int> include;
+  final Set<String> exclude;
 
   ExpressionQuery(this.pattern, {this.include = const {}, this.exclude = const {}}) {
     Iterable<RegExpMatch> matches = RegExp('[^a-z${specialCharacters.join()}]').allMatches(pattern);
@@ -86,7 +86,7 @@ class ExpressionQuery extends Query {
         'of an ExpressionQuery'
       );
     }
-    for (String letter in include.keys) {
+    for (final String letter in include.keys) {
       if (!alphabet.contains(letter)) {
         throw QueryException(
           '$letter is not a letter, '
@@ -94,7 +94,7 @@ class ExpressionQuery extends Query {
         );
       }
     }
-    for (String letter in exclude) {
+    for (final String letter in exclude) {
       if (!alphabet.contains(letter)) {
         throw QueryException(
           '$letter is not a letter, '
@@ -159,8 +159,8 @@ class ExpressionQuery extends Query {
     }
     // fixed
     else {
-      List<String> results = [
-        for (final String word in options.where((word) => isMatch(word, pattern))) word
+      final List<String> results = [
+        for (final String word in options.where((word) => isWordMatch(word, pattern))) word
       ];
       return 
         "${results.join('\n')}\n\n"
