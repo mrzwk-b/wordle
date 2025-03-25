@@ -10,9 +10,10 @@ class PositionlessEvaluator implements Evaluator {
     rankings = (() {
       final Map<String, int> letterTotals = distribution.map((key, value) => MapEntry(key, value.total),);
       final List<int> sortedTotals = letterTotals.values.toList()..sort();
-      return Map.fromEntries(List.generate(26, (i) => 
-        MapEntry(alphabet[i], sortedTotals.indexOf(letterTotals[alphabet[i]]!))
-      ));
+      return Map<String, int>.fromIterable(alphabet,
+        key: (letter) => letter,
+        value: (letter) => sortedTotals.indexOf(letterTotals[letter]!),
+      );
     })()
   ;
 

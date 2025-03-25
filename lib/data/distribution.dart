@@ -1,6 +1,6 @@
 import 'package:wordle/data/data.dart';
 
-final List<String> alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+final Set<String> alphabet = "abcdefghijklmnopqrstuvwxyz".split("").toSet();
 
 class FrequencyDistribution {
   int total;
