@@ -3,7 +3,7 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/data/distribution.dart';
 import 'package:wordle/queries/query.dart';
 
-const Set<String> specialCharacters = {r'@', r'#', r'$', r'_', r'?'};
+const Set<String> specialCharacters = {r'@', r'#', r'$', r'_', r'?', r'^', r'&', r'*'};
 const Set<String> vowels = {'a', 'e', 'i', 'o', 'u', 'y'};
 const Set<String> consonants = {'b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'};
 
@@ -31,26 +31,155 @@ bool isWordMatch(final String word, final String pattern) {
       else if (wordIndex < 5) {
         switch (pattern[patternIndex]) {
           case '@':
-            if (!vowels.contains(word[wordIndex])) {
-              matching = false;
+            int matchLength = word
+              .substring(wordIndex)
+              .split("")
+              .indexWhere((letter) => !vowels.contains(letter))
+            ;
+            // unquantified
+            if (patternIndex + 1 >= pattern.length || !{'^', '&', '*'}.contains(pattern[patternIndex + 1])) {
+              if (matchLength == 0) {
+                matching = false;
+              }
+              else {
+                wordIndex++;
+              }
             }
+            // quantified
             else {
-              wordIndex++;
+              switch (pattern[patternIndex + 1]) {
+                case '^':
+                  if (matchLength == 1) {
+                    wordIndex++;
+                  }
+                case '&':
+                  if (matchLength == 0) {
+                    matching = false;
+                  }
+                  else {
+                    wordIndex += matchLength;
+                  }
+                case '*':
+                  wordIndex += matchLength;
+                default:
+                  throw QueryException(
+                    "quantifier ${pattern[patternIndex + 1]} is not a quantifier in ExpressionQuery"
+                  );
+              }
+              patternIndex++;
             }
           case r'$':
-            if (!consonants.contains(word[wordIndex])) {
-              matching = false;
+            int matchLength = word
+              .substring(wordIndex)
+              .split("")
+              .indexWhere((letter) => !consonants.contains(letter))
+            ;
+            // unquantified
+            if (patternIndex + 1 >= pattern.length || !{'^', '&', '*'}.contains(pattern[patternIndex + 1])) {
+              if (matchLength == 0) {
+                matching = false;
+              }
+              else {
+                wordIndex++;
+              }
             }
+            // quantified
             else {
-              wordIndex++;
+              switch (pattern[patternIndex + 1]) {
+                case '^':
+                  if (matchLength == 1) {
+                    wordIndex++;
+                  }
+                case '&':
+                  if (matchLength == 0) {
+                    matching = false;
+                  }
+                  else {
+                    wordIndex += matchLength;
+                  }
+                case '*':
+                  wordIndex += matchLength;
+                default:
+                  throw QueryException(
+                    "quantifier ${pattern[patternIndex + 1]} is not a quantifier in ExpressionQuery"
+                  );
+              }
+              patternIndex++;
             }
           case '?':
             throw QueryException('"?" cannot occur in fixed expression query');
           case '_':
-            wordIndex++;
+            int matchLength = word.substring(wordIndex).length - 1;
+            // unquantified
+            if (patternIndex + 1 >= pattern.length || !{'^', '&', '*'}.contains(pattern[patternIndex + 1])) {
+              if (matchLength == 0) {
+                matching = false;
+              }
+              else {
+                wordIndex++;
+              }
+            }
+            // quantified
+            else {
+              switch (pattern[patternIndex + 1]) {
+                case '^':
+                  if (matchLength == 1) {
+                    wordIndex++;
+                  }
+                case '&':
+                  if (matchLength == 0) {
+                    matching = false;
+                  }
+                  else {
+                    wordIndex += matchLength;
+                  }
+                case '*':
+                  wordIndex += matchLength;
+                default:
+                  throw QueryException(
+                    "quantifier ${pattern[patternIndex + 1]} is not a quantifier in ExpressionQuery"
+                  );
+              }
+              patternIndex++;
+            }
           default:
-            matching &= word[wordIndex] == pattern[patternIndex];
-            wordIndex++;
+            int matchLength = word
+              .substring(wordIndex)
+              .split("")
+              .indexWhere((letter) => letter != pattern[patternIndex])
+            ;
+            // unquantified
+            if (patternIndex + 1 >= pattern.length || !{'^', '&', '*'}.contains(pattern[patternIndex + 1])) {
+              if (matchLength == 0) {
+                matching = false;
+              }
+              else {
+                wordIndex++;
+              }
+            }
+            // quantified
+            else {
+              switch (pattern[patternIndex + 1]) {
+                case '^':
+                  if (matchLength == 1) {
+                    wordIndex++;
+                  }
+                case '&':
+                  if (matchLength == 0) {
+                    matching = false;
+                  }
+                  else {
+                    wordIndex += matchLength;
+                  }
+                case '*':
+                  wordIndex += matchLength;
+                default:
+                  throw QueryException(
+                    "quantifier ${pattern[patternIndex + 1]} is not a quantifier in ExpressionQuery"
+                  );
+              }
+              patternIndex++;
+            }
         }
       }
       else {matching = false;}
@@ -62,8 +191,8 @@ bool isWordMatch(final String word, final String pattern) {
   return false;
 }
 
-List<String> getMatchingLetters(final String word, final String pattern) {
-  final List<String> matchingLetters = [];
+Set<String> getMatchingLetters(final String word, final String pattern) {
+  final Set<String> matchingLetters = {};
   for (String letter in alphabet) {
     if (isWordMatch(word, pattern.replaceAll('?', letter))) {
       matchingLetters.add(letter);
@@ -134,12 +263,11 @@ class ExpressionQuery extends Query {
     // variable
     if (pattern.contains('?')) {
       int unmatchedWordCount = 0;
-      final Iterable<List<String>> letterMatchesByWord = options.map((word) => getMatchingLetters(word, pattern));
       final Map<String, int> letterMatchCounts = Map.fromIterable(alphabet,
         key: (letter) => letter,
         value: (letter) => 0,
       );
-      for (final List<String> matchedLetters in letterMatchesByWord) {
+      for (final Set<String> matchedLetters in options.map((word) => getMatchingLetters(word, pattern))) {
         if (matchedLetters.length == 0) {
           unmatchedWordCount += 1;
         }
