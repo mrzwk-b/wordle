@@ -37,7 +37,6 @@ bool isMatch(final String word, final String pattern) {
             else {
               wordIndex++;
             }
-          ;
           case r'$':
             if (!consonants.contains(word[wordIndex])) {
               matching = false;
@@ -45,16 +44,13 @@ bool isMatch(final String word, final String pattern) {
             else {
               wordIndex++;
             }
-          ;
           case '?':
             throw QueryException('"?" cannot occur in fixed expression query');
           case '_':
             wordIndex++;
-          ;
           default:
             matching &= word[wordIndex] == pattern[patternIndex];
             wordIndex++;
-          ;
         }
       }
       else {matching = false;}
@@ -76,10 +72,12 @@ List<String> getMatchingLetters(final String word, final String pattern) {
   return matchingLetters;
 }
 
-class ExpressionQuery extends Query {  
+class ExpressionQuery extends Query {
   String pattern;
+  Map<String, int> include;
+  Set<String> exclude;
 
-  ExpressionQuery(this.pattern) {
+  ExpressionQuery(this.pattern, {this.include = const {}, this.exclude = const {}}) {
     Iterable<RegExpMatch> matches = RegExp('[^a-z${specialCharacters.join()}]').allMatches(pattern);
     if (matches.length != 0) {
       throw QueryException(
@@ -88,14 +86,55 @@ class ExpressionQuery extends Query {
         'of an ExpressionQuery'
       );
     }
+    for (String letter in include.keys) {
+      if (!alphabet.contains(letter)) {
+        throw QueryException(
+          '$letter is not a letter, '
+          'cannot be a required inclusion for an ExpressionQuery'
+        );
+      }
+    }
+    for (String letter in exclude) {
+      if (!alphabet.contains(letter)) {
+        throw QueryException(
+          '$letter is not a letter, '
+          'cannot be a required exclusion for an ExpressionQuery'
+        );
+      }
+    }
   }
 
   @override
   String execute() {
-    DataManager dm = DataManager();
+    final DataManager dm = DataManager();
+
+    // create a set of options that fulfills include/exclude requirements
+    final Set<String> illegal = {};
+    for (final String word in dm.data.options) {
+      for (final String letter in exclude) {
+        if (word.contains(letter)) {
+          illegal.add(word);
+          break;
+        }
+      }
+      if (illegal.contains(word)) {
+        continue;
+      }
+      for (final String letter in include.keys) {
+        if (word.split("").where((slot) => slot == letter).length < include[letter]!) {
+          illegal.add(word);
+          break;
+        }
+      }
+    }
+    Set<String> options = dm.data.options.difference(illegal);
+
+    // evaluate query
+    
+    // variable
     if (pattern.contains('?')) {
       int unmatchedWordCount = 0;
-      final Iterable<List<String>> letterMatchesByWord = dm.data.options.map((word) => getMatchingLetters(word, pattern));
+      final Iterable<List<String>> letterMatchesByWord = options.map((word) => getMatchingLetters(word, pattern));
       final Map<String, int> letterMatchCounts = Map.fromIterable(alphabet,
         key: (letter) => letter,
         value: (letter) => 0,
@@ -118,9 +157,10 @@ class ExpressionQuery extends Query {
         "words that matched with no letters: $unmatchedWordCount"
       ].join('\n');
     }
+    // fixed
     else {
       List<String> results = [
-        for (final String word in dm.data.options.where((word) => isMatch(word, pattern))) word
+        for (final String word in options.where((word) => isMatch(word, pattern))) word
       ];
       return 
         "${results.join('\n')}\n\n"

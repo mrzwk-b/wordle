@@ -102,6 +102,7 @@ msg:
   abbr: x
   msg:
     - pass a string to match against words
+    - optionally, also pass a set of letters to require to be included/excluded
     - name: fixed
       abbr: f
       msg:
@@ -113,6 +114,26 @@ msg:
       - shows a list of all letters ranked by how many matches they have
       - when that letter is plugged in for the variable token "?"
       - e.g., "x ?a" to see a list of letters ranked by how often they occur right before "a"
+    - name: inclusion/exclusion
+      abbr: c
+      msg:
+      - require that certain letters be either included or excluded
+      - must come after the pattern to be matched
+      - but the include and exclude sets may come in any order
+      - name: include
+        abbr: i
+        msg:
+        - included letters must be preceded with "+"
+        - type a letter multiple times to require it be included that many times
+        - e.g., "x _ +ll" to see all words with at least 2 "l"s
+        - 
+          - distinct from "x ll" in that the latter matches a sequence of 2 consecutive "l"s,
+          - whereas the former matches words containing 2 "l"s anywhere
+      - name: exclude
+        abbr: e
+        msg:
+        - excluded letters must be preceded with "-"
+        - e.g., "x _ -r" to see all words that do not contain "r"
     - name: patterns
       abbr: p
       msg:

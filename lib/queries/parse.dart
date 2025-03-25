@@ -1,4 +1,5 @@
 import 'package:wordle/data/data_manager.dart';
+import 'package:wordle/data/distribution.dart';
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
 import 'package:wordle/queries/expression_query.dart';
@@ -12,6 +13,28 @@ import 'package:wordle/queries/word_query.dart';
 bool isValidWord(String word) =>
   word.length == 5 && RegExp("[a-z]{5}").hasMatch(word)
 ;
+
+Map<String, int> parseInclusion(String arg) {
+  Map<String, int> inclusions = {};
+  for (String letter in arg.split("")) {
+    if (!alphabet.contains(letter)) {
+      throw QueryException('expected only letters in inclusion argument, found "$letter"');
+    }
+    inclusions.update(letter, (count) => count + 1, ifAbsent: () => 1);
+  }
+  return inclusions;
+}
+
+Set<String> parseExclusion(String arg) {
+  Set<String> inclusions = {};
+  for (String letter in arg.split("")) {
+    if (!alphabet.contains(letter)) {
+      throw QueryException('expected only letters in inclusion argument, found "$letter"');
+    }
+    inclusions.add(letter);
+  }
+  return inclusions;
+}
 
 Query parse(String input) {
   DataManager dm = DataManager();
@@ -200,10 +223,41 @@ Query parse(String input) {
       return WordQuery(queryArgs[1]);
 
     case 'x':
-      if (queryArgs.length != 2) {
-        throw QueryException("expected 1 argument for ExpressionQuery, found ${queryArgs.length - 1}");
+      if (queryArgs.length == 2) {
+        return ExpressionQuery(queryArgs[1]);
       }
-      return ExpressionQuery(queryArgs[1]);
+      else if (queryArgs.length == 3) {
+        if (queryArgs[2].startsWith('+')) {
+          return ExpressionQuery(queryArgs[1], include: parseInclusion(queryArgs[2].substring(1)));
+        }
+        else if (queryArgs[2].startsWith('-')) {
+          return ExpressionQuery(queryArgs[1], exclude: parseExclusion(queryArgs[2].substring(1)));
+        }
+        else {
+          throw QueryException('expected inclusion or exclusion argument, found "${queryArgs[2]}"');
+        }
+      }
+      else if (queryArgs.length == 4) {
+        if (queryArgs[2].startsWith('+') && queryArgs[3].startsWith('-')) {
+          return ExpressionQuery(queryArgs[1],
+            include: parseInclusion(queryArgs[2].substring(1)),
+            exclude: parseExclusion(queryArgs[3].substring(1))
+          );
+        }
+        else if (queryArgs[3].startsWith('+') && queryArgs[2].startsWith('-')) {
+          return ExpressionQuery(queryArgs[1],
+            include: parseInclusion(queryArgs[3].substring(1)),
+            exclude: parseExclusion(queryArgs[2].substring(1))
+          );
+        }
+        else {
+          throw QueryException('expected inclusion and exclusion argument, found ${queryArgs.sublist(2)}');
+        }
+
+      }
+      else {
+        throw QueryException('expected 1-3 arguments to ExpressionQuery, found ${queryArgs.length}');
+      }
       
     default:
       throw QueryException('"${queryArgs[0]}" does not correspond to a valid query type');
