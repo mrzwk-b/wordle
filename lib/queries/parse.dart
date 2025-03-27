@@ -38,7 +38,6 @@ Set<String> parseExclusion(String arg) {
 }
 
 Query parse(String input) {
-  DataManager dm = DataManager();
   List<String> queryArgs = input.split(" ");
   switch (queryArgs[0]) {
     case 'g':
@@ -78,8 +77,8 @@ Query parse(String input) {
       
       if (int.tryParse(queryArgs[1]) != null) {
         int count = int.parse(queryArgs[1]);
-        if (dm.stack.length <= count) {
-          throw QueryException("cannot remove $count elements from a stack of length ${dm.stack.length}");
+        if (stack.length <= count) {
+          throw QueryException("cannot remove $count elements from a stack of length ${stack.length}");
         }
         return StateQuery(count: count);
       }
@@ -87,7 +86,7 @@ Query parse(String input) {
         if (!isValidWord(queryArgs[1])) {
           throw QueryException("expected valid word as argument for StateQuery, found ${queryArgs[1]}");
         }
-        if (!dm.stack.map((entry) => entry.name).contains(queryArgs[1])) {
+        if (!stack.map((entry) => entry.name).contains(queryArgs[1])) {
           throw QueryException('can\'t revert to before "${queryArgs[1]}" because it isn\'t in the stack');
         }
         return StateQuery(word: queryArgs[1]);

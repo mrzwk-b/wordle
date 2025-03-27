@@ -17,8 +17,7 @@ void main(List<String> argStrs) async {
     scrapePast(args.option("today")).then((value) {past = value;}),
   ]) {await assignment;}
   
-  DataManager dm = DataManager();
-  dm.push(Data(possible, past));
+  push(Data(possible, past));
 
   while (true) {
     print("enter a query (h for help):");

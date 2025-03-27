@@ -235,11 +235,9 @@ class ExpressionQuery extends Query {
 
   @override
   String execute() {
-    final DataManager dm = DataManager();
-
     // create a set of options that fulfills include/exclude requirements
     final Set<String> illegal = {};
-    for (final String word in dm.data.options) {
+    for (final String word in data.options) {
       for (final String letter in exclude) {
         if (word.contains(letter)) {
           illegal.add(word);
@@ -256,7 +254,7 @@ class ExpressionQuery extends Query {
         }
       }
     }
-    Set<String> options = dm.data.options.difference(illegal);
+    Set<String> options = data.options.difference(illegal);
 
     // evaluate query
     

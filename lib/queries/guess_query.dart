@@ -3,7 +3,6 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
 
 class GuessQuery extends Query {
-  DataManager dm = DataManager();
   String word;
   String result;
   GuessQuery(this.word, this.result);
@@ -13,7 +12,7 @@ class GuessQuery extends Query {
     List<String?> yellow = const [],
     List<String?> green = const []
   }) {
-    Set<String> possible = dm.data.possible.where((_) => true).toSet();
+    Set<String> possible = data.possible.where((_) => true).toSet();
     // get the letters that need to be included
     final Map<String, int> include = {};
     for (String? letter in yellow) {
@@ -82,8 +81,8 @@ class GuessQuery extends Query {
       }
     }
     Set<String> possible = reflectChange(blank: blank, yellow: yellow, green: green);
-    dm.push(Data(possible, dm.data.past), word);
-    return "update complete, now ${dm.data.options.length} possible words";
+    push(Data(possible, data.past), word);
+    return "update complete, now ${data.options.length} possible words";
   }
   
 }

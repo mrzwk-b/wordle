@@ -17,24 +17,23 @@ class LetterQuery extends Query {
 
   @override
   String execute() {
-    DataManager dm = DataManager();
     return (letter == null ? 
-      [for (String l in dm.data.frequencyRankings)
+      [for (String l in data.frequencyRankings)
         "$l: "
-        "${dm.data.frequencyDistribution[l]!.positionCounts} "
-        "total: ${dm.data.frequencyDistribution[l]!.total}, "
+        "${data.frequencyDistribution[l]!.positionCounts} "
+        "total: ${data.frequencyDistribution[l]!.total}, "
       ].join('\n')
     :
-      "${dm.data.frequencyDistribution[letter]!.positionCounts}\n"
-      "total: ${dm.data.frequencyDistribution[letter]!.total}, "
-      "${dm.data.frequencyRankings.indexOf(letter!) + 1} / 26\n"
+      "${data.frequencyDistribution[letter]!.positionCounts}\n"
+      "total: ${data.frequencyDistribution[letter]!.total}, "
+      "${data.frequencyRankings.indexOf(letter!) + 1} / 26\n"
       "preceding: {\n${[
-        for (Set<String?> antecedentTier in dm.data.contextualDistribution[letter]!.preceding) "  { ${
+        for (Set<String?> antecedentTier in data.contextualDistribution[letter]!.preceding) "  { ${
           [for (String? antecedent in antecedentTier) "${antecedent ?? '#'}"].join(', ')
         } }"
       ].join(",\n")}\n}\n"
       "following: {\n${[
-        for (Set<String?> sequentTier in dm.data.contextualDistribution[letter]!.following) "  { ${
+        for (Set<String?> sequentTier in data.contextualDistribution[letter]!.following) "  { ${
           [for (String? sequent in sequentTier) "${sequent ?? '#'}"].join(', ')
         } }"
       ].join(",\n")}\n}"

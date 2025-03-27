@@ -12,25 +12,24 @@ class StateQuery extends Query {
   
   @override
   String execute() {
-    DataManager dm = DataManager();
     if (word == null && count == null) {
       return [
-        "${dm.stack.length - 1} state${dm.stack.length - 1 == 1 ? "" : "s"} in history",
-        if (dm.stack.length != 1) for (String line in [
+        "${stack.length - 1} state${stack.length - 1 == 1 ? "" : "s"} in history",
+        if (stack.length != 1) for (String line in [
           "from least to most recent:",
-          dm.stack.sublist(1).toString(),
+          stack.sublist(1).toString(),
         ]) line
       ].join('\n');
     } 
     else { 
-      dm.pop(count: count, word: word);
+      pop(count: count, word: word);
       return [
         "reverted state back ${
           count != null 
           ? "by $count steps"
           : "to before $word"
         }",
-        "now ${dm.data.options.length} options available",
+        "now ${data.options.length} options available",
       ].join('\n');
     }
   }
