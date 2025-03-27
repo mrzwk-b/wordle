@@ -32,10 +32,7 @@ msg:
     -
       - total frequency,
       - frequency in each slot,
-      - and letters sorted by how often they precede and follow it
-      -
-        - sorted least to most common
-        - (# represents a word boundary)
+      - and letters sorted by how often they precede and follow it (# represents a word boundary)
     - e.g, "l e" to see data for "e"
   - name: zero argument
     abbr: '0'

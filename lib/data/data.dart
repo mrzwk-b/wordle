@@ -9,9 +9,9 @@ class Data {
   final Set<String> past;
   final Set<String> options;
 
-  late final Map<String, FrequencyDistribution> frequencyDistribution;
+  late final Map<String, FrequencyDistribution> frequencyDistributions;
   late final List<String> frequencyRankings;
-  late final Map<String, ContextualDistribution> contextualDistribution;
+  late final Map<String, ContextualDistribution> contextualDistributions;
 
   late final Map<String, Evaluator> evaluators;
   late final Map<String, Map<String, int>> evaluations;
@@ -21,15 +21,15 @@ class Data {
   Data(this.possible, this.past):
     options = possible.difference(past)
   {
-    frequencyDistribution = getFrequencyDistributions(options);
-    frequencyRankings = rank(frequencyDistribution.map(
+    frequencyDistributions = getFrequencyDistributions(options);
+    frequencyRankings = rank(frequencyDistributions.map(
       (letter, distribution) => MapEntry(letter, distribution.total)
     ));
-    contextualDistribution = getContextualDistributions(options);
+    contextualDistributions = getContextualDistributions(options);
     evaluators = {
-      "positionless": PositionlessEvaluator(frequencyDistribution),
-      "positional": PositionalEvaluator(frequencyDistribution),
-      "contextual": ContextualEvaluator(contextualDistribution),
+      "positionless": PositionlessEvaluator(frequencyDistributions),
+      "positional": PositionalEvaluator(frequencyDistributions),
+      "contextual": ContextualEvaluator(contextualDistributions),
     };
     evaluations = 
       Map.fromEntries(evaluators.entries.map((entry) => 
