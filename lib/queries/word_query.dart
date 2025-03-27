@@ -17,9 +17,14 @@ class WordQuery extends Query {
   String execute() {
     DataManager dm = DataManager();
     return [
-      dm.data.options.contains(word)
-        ? ''
-        : '${dm.data.past.contains(word) ? 'already been used' : 'not an answer'}, but hypothetically:'
+      if (!dm.data.options.contains(word)) 
+        '${(dm.data.past.contains(word) 
+          ? 'already been used'
+          : (dm.stack.first.data.possible.contains(word)
+            ? 'impossible due to a previous guess'
+            : 'not an answer'
+          )
+        )}, but hypothetically:'
       ,
       for (String evaluatorName in dm.data.evaluators.keys) 
         '$evaluatorName: ${dm.data.evaluationReport(evaluatorName, word)}'
