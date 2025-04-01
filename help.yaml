@@ -105,10 +105,21 @@ msg:
   - name: list
     abbr: l
     msg:
-    - positionless
-    - positional
-    - contextual
-
+    - name: positionless
+      abbr: s
+      msg:
+      - evaluates each letter of a potential guess based on
+      - how often it occurs in total
+    - name: positional
+      abbr: l
+      msg:
+      - evaluates each letter of a potential guess based on
+      - how often it occurs in that position
+    - name: contextual
+      abbr: c
+      msg:
+      - evaluates each letter of a potential guess based on
+      - how often it occurs preceded and followed by the letters that precede and follow it in the guess
 - name: word
   abbr: w
   msg:
