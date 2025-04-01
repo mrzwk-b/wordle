@@ -2,10 +2,10 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
 
 class EvaluatorRankQuery extends Query {
-  String evaluatorName;
-  int count;
-  int offset;
-  bool decreasing;
+  final String evaluatorName;
+  final int count;
+  final int offset;
+  final bool decreasing;
   EvaluatorRankQuery(this.evaluatorName, this.count, {this.offset = 0, this.decreasing = true}) {
     if (!data.evaluators.keys.contains(evaluatorName)) {
       throw QueryException('EvaluatorRankQuery requires name of valid evaluator, received "$evaluatorName"');
@@ -23,14 +23,16 @@ class EvaluatorRankQuery extends Query {
     }
   }
 
+  Iterable<String> execute() => 
+    ((final List<String> list) => 
+      decreasing ? list : list.reversed
+    )(data.rankings[evaluatorName]!).toList().sublist(offset).take(count)
+  ;
+
   @override
-  String execute() => [
-    // get a list of a [length] items from the top or bottom of rankings for the given evaluator
-    for (String word in 
-      (decreasing ? data.rankings[evaluatorName]! : data.rankings[evaluatorName]!.reversed)
-      .toList()
-      .sublist(offset)
-      .take(count)
-    ) "$word: ${data.evaluationReport(evaluatorName, word)}"     
+  String report() => [
+    for (final String word in execute()) (
+      "$word: ${data.evaluationReport(evaluatorName, word)}"
+    )
   ].join('\n');
 }

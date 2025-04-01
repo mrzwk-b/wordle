@@ -61,8 +61,7 @@ class GuessQuery extends Query {
     return possible;
   }
 
-  @override
-  String execute() {
+  void execute() {
     List<String?> blank = List.filled(5, null);
     List<String?> yellow = List.filled(5, null);
     List<String?> green = List.filled(5, null);
@@ -82,6 +81,11 @@ class GuessQuery extends Query {
     }
     Set<String> possible = reflectChange(blank: blank, yellow: yellow, green: green);
     push(Data(possible, data.past), word);
+  }
+
+  @override
+  String report() {
+    execute();
     return "update complete, now ${data.options.length} possible words";
   }
   

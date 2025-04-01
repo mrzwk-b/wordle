@@ -1,5 +1,6 @@
 abstract class Query {
-  String execute();
+  /// executes the query and returns a message containing its results
+  String report();
 }
 
 class QueryException implements Exception {

@@ -9,9 +9,13 @@ class StateQuery extends Query {
       throw QueryException("cannot pass both a word and a count to StateQuery");
     }
   }
+
+  void execute() {
+    pop(count: count, word: word);
+  }
   
   @override
-  String execute() {
+  String report() {
     if (word == null && count == null) {
       return [
         "${stack.length - 1} state${stack.length - 1 == 1 ? "" : "s"} in history",
@@ -21,8 +25,8 @@ class StateQuery extends Query {
         ]) line
       ].join('\n');
     } 
-    else { 
-      pop(count: count, word: word);
+    else {
+      execute();
       return [
         "reverted state back ${
           count != null 

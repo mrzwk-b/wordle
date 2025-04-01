@@ -6,7 +6,7 @@ class QuitQuery extends Query {
   QuitQuery();
   
   @override
-  String execute() {
+  String report() {
     exit(0);
   }
 }

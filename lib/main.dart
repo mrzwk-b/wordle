@@ -34,7 +34,7 @@ void main(List<String> argStrs) async {
   while (true) {
     print("enter a query (h for help):");
     try {
-      print(parse(stdin.readLineSync() ?? "").execute());
+      print(parse(stdin.readLineSync() ?? "").report());
     }
     on QueryException catch (e) {
       print(e);

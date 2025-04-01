@@ -234,7 +234,7 @@ class ExpressionQuery extends Query {
   }
 
   @override
-  String execute() {
+  String report() {
     // create a set of options that fulfills include/exclude requirements
     final Set<String> illegal = {};
     for (final String word in data.options) {

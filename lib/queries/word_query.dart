@@ -14,7 +14,7 @@ class WordQuery extends Query {
   }
 
   @override
-  String execute() {
+  String report() {
     return [
       if (!data.options.contains(word)) 
         '${(data.past.contains(word) 

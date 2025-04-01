@@ -55,7 +55,7 @@ class HelpQuery extends Query {
   HelpQuery(this.path);
 
   @override
-  String execute() => [
+  String report() => [
     for (YamlNode node in find(msgTree, path)?.nodes ?? 
       (throw QueryException("unable to find help message for $path"))
     ) (

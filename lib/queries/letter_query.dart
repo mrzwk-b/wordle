@@ -17,7 +17,7 @@ class LetterQuery extends Query {
   }
 
   @override
-  String execute() {
+  String report() {
     if (letter == null) {
       return [for (String l in data.frequencyRankings)
         "$l: "

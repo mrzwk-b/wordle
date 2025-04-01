@@ -25,7 +25,7 @@ class EvaluatorRangeQuery extends Query {
     }
   }
 
-  Iterable<String> getWordsInRange() {
+  Iterable<String> execute() {
     Map<String, int> wordEvaluations = data.evaluations[evaluatorName]!;
     List<String> wordRankings = data.rankings[evaluatorName]!;
     int start = 0;
@@ -66,8 +66,8 @@ class EvaluatorRangeQuery extends Query {
   }
 
   @override
-  String execute() =>
-    [for (String word in getWordsInRange())
+  String report() =>
+    [for (String word in execute())
       '$word: ${data.evaluationReport(evaluatorName, word)}',
     ].join('\n')
   ;
