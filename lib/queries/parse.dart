@@ -1,5 +1,6 @@
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/data/distribution.dart';
+import 'package:wordle/queries/bot_query.dart';
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
 import 'package:wordle/queries/expression_query.dart';
@@ -40,6 +41,18 @@ Set<String> parseExclusion(String arg) {
 Query parse(String input) {
   List<String> queryArgs = input.split(" ");
   switch (queryArgs[0]) {
+    case 'b':
+      if (queryArgs.length != 3) {
+        throw QueryException("expected 2 arguments for BotQuery, found ${queryArgs.length - 1}");
+      }
+      if (!data.evaluators.keys.contains(queryArgs[1])) {
+        throw QueryException("expected the name of an evaluator for first argument of BotQuery, found ${queryArgs[1]}");
+      }
+      if (!isValidWord(queryArgs[2])) {
+        throw QueryException('expected 5 letter alphabetic second argument of BotQuery, found "${queryArgs[2]}"');
+      }
+      return BotQuery(queryArgs[1], queryArgs[2]);
+
     case 'g':
       if (queryArgs.length != 3) {
         throw QueryException("expected 2 arguments for ExpressionQuery, found ${queryArgs.length - 1}");

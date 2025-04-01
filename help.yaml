@@ -2,6 +2,19 @@ msg:
 - to view information about something,
 - enter the help query from which you can see that option
 - followed by its given abbreviation
+- e.g,
+- 
+  - '"h x" to see help message about expression queries'
+  - '"h x p" to see help message about expression query patterns'
+  - etc.
+- name: bot
+  abbr: b
+  msg:
+  - runs an automated game of wordle using the given answer and evaluator
+  - e.g., "b positional crest"
+  -
+    - to see how a bot making guesses from the top of the positional evaluator
+    - would play a game where "crest" was the answer
 - name: guess
   abbr: g
   msg: 
