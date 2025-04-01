@@ -67,8 +67,8 @@ Map<String, ContextualDistribution> getContextualDistributions(Iterable<String> 
   }
   return {
     for (final String letter in alphabet) letter: ContextualDistribution(
-      rankWithTies(antecedents[letter]!, increasing: true),
-      rankWithTies(sequents[letter]!, increasing: true)
+      rankWithTies(antecedents[letter]!, (a, b) => a - b),
+      rankWithTies(sequents[letter]!, (a, b) => a - b)
     )
   };
 }

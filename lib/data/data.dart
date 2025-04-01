@@ -1,4 +1,5 @@
 import 'package:wordle/data/distribution.dart';
+import 'package:wordle/evaluators/balancing_evaluator.dart';
 import 'package:wordle/evaluators/contextual_evaluator.dart';
 import 'package:wordle/evaluators/evaluator.dart';
 import 'package:wordle/evaluators/positional_evaluator.dart';
@@ -22,14 +23,18 @@ class Data {
     options = possible.difference(past)
   {
     frequencyDistributions = getFrequencyDistributions(options);
-    frequencyRankings = rank(frequencyDistributions.map(
-      (letter, distribution) => MapEntry(letter, distribution.total)
-    ));
+    frequencyRankings = rank(
+      frequencyDistributions.map(
+        (letter, distribution) => MapEntry(letter, distribution.total),
+      ),
+      (a, b) => b - a
+    );
     contextualDistributions = getContextualDistributions(options);
     evaluators = {
       "positionless": PositionlessEvaluator(frequencyDistributions),
       "positional": PositionalEvaluator(frequencyDistributions),
       "contextual": ContextualEvaluator(contextualDistributions),
+      "balancing": BalancingEvaluator(frequencyDistributions, options.length),
     };
     evaluations = 
       Map.fromEntries(evaluators.entries.map((entry) => 
@@ -46,7 +51,7 @@ class Data {
       Map.fromEntries(evaluations.entries.map((entry) => 
         MapEntry(
           entry.key,
-          rank(entry.value)
+          rank(entry.value, (a, b) => evaluators[entry.key]!.compare(a, b))
         )
       ));
     ;
@@ -65,15 +70,14 @@ class Data {
   ;
 }
 
-List<T> rank<T>(Map<T, int> items, {bool increasing = false}) => (
-  items.entries.toList()..sort(increasing ?
-    (a, b) => a.value - b.value :
-    (a, b) => b.value - a.value
+List<T> rank<T>(Map<T, int> items, int Function(int, int) comparator) => (
+  items.entries.toList()..sort((MapEntry<T, int> a, MapEntry<T, int> b) =>
+    comparator(a.value, b.value)
   )
 ).map((item) => item.key).toList();
 
-List<Set<T>> rankWithTies<T>(Map<T, int> items, {bool increasing = false}) {
-  List<T> ranked = rank(items, increasing: increasing);
+List<Set<T>> rankWithTies<T>(Map<T, int> items, int Function(int, int) comparator) {
+  List<T> ranked = rank(items, comparator);
   List<Set<T>> output = [];
   Set<T> currentTier = {};
   for (T item in ranked) {

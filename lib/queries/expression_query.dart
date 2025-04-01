@@ -274,7 +274,7 @@ class ExpressionQuery extends Query {
         }
       }
       return [
-        for (final String letter in rank(letterMatchCounts))
+        for (final String letter in rank(letterMatchCounts, (a, b) => b - a))
           if (letterMatchCounts[letter]! != 0) "$letter: ${letterMatchCounts[letter]}"
         ,
         "letters that matched with no words: "

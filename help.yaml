@@ -110,16 +110,29 @@ msg:
       msg:
       - evaluates each letter of a potential guess based on
       - how often it occurs in total
+      - higher scores are better
     - name: positional
       abbr: l
       msg:
       - evaluates each letter of a potential guess based on
       - how often it occurs in that position
+      - higher scores are better
     - name: contextual
       abbr: c
       msg:
       - evaluates each letter of a potential guess based on
       - how often it occurs preceded and followed by the letters that precede and follow it in the guess
+      - higher scores are better
+    - name: balancing
+      abbr: b
+      msg:
+      - evaluates each letter of a potential guess based on
+      - 'an attempt to balance how often that letter:'
+      -
+        - in that position
+        - in any other position
+        - in no positions
+      - lower scores are better
 - name: word
   abbr: w
   msg:

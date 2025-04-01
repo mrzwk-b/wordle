@@ -9,7 +9,7 @@ class ContextualEvaluator implements Evaluator {
   ContextualEvaluator(this.distribution);
 
   @override
-  int compare(int a, int b) => a - b;
+  int compare(int a, int b) => b - a;
 
   int evaluateLetter(final String word, final int letterIndex) =>
     distribution[word[letterIndex]]!.preceding.indexWhere(

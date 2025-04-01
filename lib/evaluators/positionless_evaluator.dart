@@ -18,7 +18,7 @@ class PositionlessEvaluator implements Evaluator {
   ;
 
   @override
-  int compare(int a, int b) => a - b;
+  int compare(int a, int b) => b - a;
 
   @override
   int evaluate(final String word) {
