@@ -191,11 +191,11 @@ bool isWordMatch(final String word, final String pattern) {
   return false;
 }
 
-Set<String> getMatchingLetters(final String word, final String pattern) {
-  final Set<String> matchingLetters = {};
-  for (String letter in alphabet) {
+Set<String?> getMatchingLetters(final String word, final String pattern) {
+  final Set<String?> matchingLetters = {};
+  for (String letter in alphabet..add('#')) {
     if (isWordMatch(word, pattern.replaceAll('?', letter))) {
-      matchingLetters.add(letter);
+      matchingLetters.add(letter == '#' ? null : letter);
     }
   }
   return matchingLetters;
@@ -261,21 +261,22 @@ class ExpressionQuery extends Query {
     // variable
     if (pattern.contains('?')) {
       int unmatchedWordCount = 0;
-      final Map<String, int> letterMatchCounts = Map.fromIterable(alphabet,
+      final Map<String?, int> letterMatchCounts = Map.fromIterable(
+        {null, for (String letter in alphabet) letter},
         key: (letter) => letter,
         value: (letter) => 0,
       );
-      for (final Set<String> matchedLetters in options.map((word) => getMatchingLetters(word, pattern))) {
+      for (final Set<String?> matchedLetters in options.map((word) => getMatchingLetters(word, pattern))) {
         if (matchedLetters.length == 0) {
           unmatchedWordCount += 1;
         }
-        for (final String letter in matchedLetters) {
+        for (final String? letter in matchedLetters) {
           letterMatchCounts.update(letter, (count) => count + 1);
         }
       }
       return [
-        for (final String letter in rank(letterMatchCounts, (a, b) => b - a))
-          if (letterMatchCounts[letter]! != 0) "$letter: ${letterMatchCounts[letter]}"
+        for (final String? letter in rank(letterMatchCounts, (a, b) => b - a))
+          if (letterMatchCounts[letter]! != 0) "${letter == null ? '#' : letter}: ${letterMatchCounts[letter]}"
         ,
         "letters that matched with no words: "
           "${letterMatchCounts.keys.where((letter) => letterMatchCounts[letter]! == 0)}"
