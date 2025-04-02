@@ -13,7 +13,7 @@ Future<Set<String>> tryUntilSuccess(Future<Set<String>> Function() scrape) async
       return await scrape();
     }
     catch (e) {
-      print("error encountered: $e");
+      print("error encountered while scraping: $e");
       print("trying again");
     }
   }

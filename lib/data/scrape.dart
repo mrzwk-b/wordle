@@ -33,21 +33,17 @@ Future<Set<String>> scrapePossible() async {
   final Set<String> words = {};
 
   final html = await (
-    await Request("get", Uri.https("wordunscrambler.net", "/word-list/wordle-word-list")).send()
+    await Request("get", Uri.https("wordletools.azurewebsites.net", "weightedbottles")).send()
   ).stream;
   
   // the html every word is encased within
-  final String target = 
-    r'<li class="invert light">\s*'
-      r'<a href="/unscramble/([a-z]{5})">([a-z]{5})</a>\s*'
-    r'</li?>\s*'
-  ;
-  final RegExp regExp = RegExp(target, multiLine: true);
+  final String target = r'<td>([A-Z]{5})</td>';
+  final RegExp regExp = RegExp(target);
   String buffer = "";
   await for (final chunk in html) {
     buffer += utf8.decode(chunk);
     for (RegExpMatch match in regExp.allMatches(buffer)) {
-      if (!words.contains(match[1])) words.add(match[1]!);
+      if (!words.contains(match[1])) words.add(match[1]!.toLowerCase());
     }
     // cut the buffer down to just big enough to almost hold another copy of the target string
     final int newStart = buffer.length - target.length; 
