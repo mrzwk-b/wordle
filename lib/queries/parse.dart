@@ -132,10 +132,10 @@ Query parse(String input) {
             }
           }
           return EvaluatorRangeQuery(queryArgs[1], Range(
-            lowWord: score == null ? word : null,
-            lowScore: score,
-            highWord: score == null ? word : null,
-            highScore: score
+            worstWord: score == null ? word : null,
+            worstScore: score,
+            bestWord: score == null ? word : null,
+            bestScore: score
           ));
         }
         // high limit only
@@ -147,14 +147,14 @@ Query parse(String input) {
             if (!isValidWord(highWord)) {
               throw QueryException('expected 5 letter alphabetic word as limit, found "$highWord"');
             }
-            return EvaluatorRangeQuery(queryArgs[1], Range(highWord: highWord));
+            return EvaluatorRangeQuery(queryArgs[1], Range(bestWord: highWord));
           }
           // score limit
           else {
             if (highScore < 0) {
               throw QueryException("expected nonnegative score limit, found $highScore");
             }
-            return EvaluatorRangeQuery(queryArgs[1], Range(highScore: highScore));
+            return EvaluatorRangeQuery(queryArgs[1], Range(bestScore: highScore));
           }
         }
         // low limit only
@@ -166,14 +166,14 @@ Query parse(String input) {
             if (!isValidWord(lowWord)) {
               throw QueryException('expected 5 letter alphabetic word as limit, found "$lowWord"');
             }
-            return EvaluatorRangeQuery(queryArgs[1], Range(lowWord: lowWord));
+            return EvaluatorRangeQuery(queryArgs[1], Range(worstWord: lowWord));
           }
           // score limit
           else {
             if (lowScore < 0) {
               throw QueryException("expected nonnegative score limit, found $lowScore");
             }
-            return EvaluatorRangeQuery(queryArgs[1], Range(lowScore: lowScore));
+            return EvaluatorRangeQuery(queryArgs[1], Range(worstScore: lowScore));
           }
         }
         // both limits
@@ -207,10 +207,10 @@ Query parse(String input) {
             }
           }
           return EvaluatorRangeQuery(queryArgs[1], Range(
-            lowWord: lowScore == null ? lowWord : null,
-            lowScore: lowScore,
-            highWord: highScore == null ? highWord : null,
-            highScore: highScore
+            worstWord: lowScore == null ? lowWord : null,
+            worstScore: lowScore,
+            bestWord: highScore == null ? highWord : null,
+            bestScore: highScore
           ));
         }
       }

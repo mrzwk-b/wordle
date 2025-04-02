@@ -2,15 +2,15 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
 
 class Range {
-  String? lowWord;
-  String? highWord;
-  int? lowScore;
-  int? highScore;
-  Range({this.lowScore, this.lowWord, this.highScore, this.highWord}) {
-    if (lowScore != null && lowWord != null) {
+  String? worstWord;
+  String? bestWord;
+  int? worstScore;
+  int? bestScore;
+  Range({this.worstScore, this.worstWord, this.bestScore, this.bestWord}) {
+    if (worstScore != null && worstWord != null) {
       throw QueryException("cannot create Range with 2 starts");
     }
-    if (highScore != null && highWord != null) {
+    if (bestScore != null && bestWord != null) {
       throw QueryException("cannot create Range with 2 ends");
     }
   }
@@ -31,33 +31,33 @@ class EvaluatorRangeQuery extends Query {
     int start = 0;
     int end = wordRankings.length;
     // find end index in rankings
-    if (range.highScore != null || range.highWord != null) {
-      // establish highScore
-      if (range.highWord != null) {
-        range.highScore = wordEvaluations.containsKey(range.highWord)
-          ? wordEvaluations[range.highWord]!
-          : data.evaluators[evaluatorName]!.evaluate(range.highWord!)
+    if (range.bestScore != null || range.bestWord != null) {
+      // establish bestScore
+      if (range.bestWord != null) {
+        range.bestScore = wordEvaluations.containsKey(range.bestWord)
+          ? wordEvaluations[range.bestWord]!
+          : data.evaluators[evaluatorName]!.evaluate(range.bestWord!)
         ;
       }
-      // find latest index of word with score at most highScore
+      // find latest index of word with score at best bestScore
       start = wordRankings.indexOf(wordRankings.firstWhere(
-        (word) => wordEvaluations[word]! <= range.highScore!,
+        (word) => data.evaluators[evaluatorName]!.compare(wordEvaluations[word]!, range.bestScore!) > -1,
         orElse: () => "",
       ));
       start = start == -1 ? wordRankings.length : start;
     }
     // find end index in rankings
-    if (range.lowScore != null || range.lowWord != null) {
-      // establish lowScore
-      if (range.lowWord != null) {
-        range.lowScore = wordEvaluations.containsKey(range.lowWord)
-          ? wordEvaluations[range.lowWord]!
-          : data.evaluators[evaluatorName]!.evaluate(range.lowWord!)
+    if (range.worstScore != null || range.worstWord != null) {
+      // establish worstScore
+      if (range.worstWord != null) {
+        range.worstScore = wordEvaluations.containsKey(range.worstWord)
+          ? wordEvaluations[range.worstWord]!
+          : data.evaluators[evaluatorName]!.evaluate(range.worstWord!)
         ;
       }
-      // find earliest index of word with score at least lowScore
-      end = wordRankings.lastIndexWhere((word) => 
-        wordEvaluations[word]! >= range.lowScore!
+      // find earliest index of word with score at worst worstScore
+      end = wordRankings.lastIndexWhere(
+        (word) => data.evaluators[evaluatorName]!.compare(wordEvaluations[word]!, range.worstScore!) < 1 
       );
       end = end == -1 ? 0 : end + 1;
     }

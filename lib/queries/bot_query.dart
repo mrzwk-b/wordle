@@ -42,7 +42,7 @@ class BotQuery extends Query {
     for (int i = 0; i < 6; i++) {
       final String goodWord = EvaluatorRankQuery(evaluator, 1).execute().single;
       final List<String> bestWords = EvaluatorRangeQuery(
-        evaluator, Range(highWord: goodWord, lowWord: goodWord)
+        evaluator, Range(bestWord: goodWord, worstWord: goodWord)
       ).execute().toList();
       final String guess = bestWords[random.nextInt(bestWords.length)];
       final String response = guessResponse(guess);
