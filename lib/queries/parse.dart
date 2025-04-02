@@ -117,6 +117,27 @@ Query parse(String input) {
         if (range.length == 1) {
           return EvaluatorRangeQuery(queryArgs[1], Range());
         }
+        // 1 limit on both sides
+        else if (range.startsWith(':') && range.endsWith(':')) {
+          String word = range.substring(1, range.length - 1);
+          int? score = int.tryParse(word);
+          if (score == null) {
+            if (!isValidWord(word)) {
+              throw QueryException('expected 5 letter alphabetic word as limit, found "$word"');
+            }
+          }
+          else {
+            if (score < 0) {
+              throw QueryException('expected nonnegative score limit, found $score');
+            }
+          }
+          return EvaluatorRangeQuery(queryArgs[1], Range(
+            lowWord: score == null ? word : null,
+            lowScore: score,
+            highWord: score == null ? word : null,
+            highScore: score
+          ));
+        }
         // high limit only
         else if (range.startsWith(':')) {
           String highWord = range.substring(1);
