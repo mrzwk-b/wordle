@@ -39,21 +39,25 @@ class BotQuery extends Query {
   String report() {
     List<Guess> guesses = [];
     Random random = Random();
-    for (int i = 0; i < 6; i++) {
-      final String goodWord = EvaluatorRankQuery(evaluator, 1).execute().single;
-      final List<String> bestWords = EvaluatorRangeQuery(
-        evaluator, Range(bestWord: goodWord, worstWord: goodWord)
-      ).execute().toList();
-      final String guess = bestWords[random.nextInt(bestWords.length)];
-      final String response = guessResponse(guess);
+    try {
+      for (int i = 0; i < 6; i++) {
+        final String goodWord = EvaluatorRankQuery(evaluator, 1).execute().single;
+        final List<String> bestWords = EvaluatorRangeQuery(
+          evaluator, Range(bestWord: goodWord, worstWord: goodWord)
+        ).execute().toList();
+        final String guess = bestWords[random.nextInt(bestWords.length)];
+        final String response = guessResponse(guess);
 
-      guesses.add(Guess(guess, response));
-      GuessQuery(guess, response).execute();
-      if (response == 'ggggg') {
-        break;
+        GuessQuery(guess, response).execute();
+        if (response == 'ggggg') {
+          break;
+        }
+        guesses.add(Guess(guess, response));
       }
     }
-    StateQuery(count: guesses.length).execute();
+    finally {
+      StateQuery(count: guesses.length).execute();
+    }
     
     return [
       for (Guess guess in guesses) (
