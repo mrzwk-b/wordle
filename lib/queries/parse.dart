@@ -9,6 +9,7 @@ import 'package:wordle/queries/help_query.dart';
 import 'package:wordle/queries/letter_query.dart';
 import 'package:wordle/queries/query.dart';
 import 'package:wordle/queries/quit_query.dart';
+import 'package:wordle/queries/restrict_query.dart';
 import 'package:wordle/queries/state_query.dart';
 import 'package:wordle/queries/word_query.dart';
 
@@ -79,6 +80,43 @@ Query parse(String input) {
 
     case 'q':
       return QuitQuery();
+
+    case 'r':
+      if (queryArgs.length == 2) {
+        return RestrictQuery(queryArgs[1]);
+      }
+      else if (queryArgs.length == 3) {
+        if (queryArgs[2].startsWith('+')) {
+          return RestrictQuery(queryArgs[1], include: parseInclusion(queryArgs[2].substring(1)));
+        }
+        else if (queryArgs[2].startsWith('-')) {
+          return RestrictQuery(queryArgs[1], exclude: parseExclusion(queryArgs[2].substring(1)));
+        }
+        else {
+          throw QueryException('expected inclusion or exclusion argument, found "${queryArgs[2]}"');
+        }
+      }
+      else if (queryArgs.length == 4) {
+        if (queryArgs[2].startsWith('+') && queryArgs[3].startsWith('-')) {
+          return RestrictQuery(queryArgs[1],
+            include: parseInclusion(queryArgs[2].substring(1)),
+            exclude: parseExclusion(queryArgs[3].substring(1))
+          );
+        }
+        else if (queryArgs[3].startsWith('+') && queryArgs[2].startsWith('-')) {
+          return RestrictQuery(queryArgs[1],
+            include: parseInclusion(queryArgs[3].substring(1)),
+            exclude: parseExclusion(queryArgs[2].substring(1))
+          );
+        }
+        else {
+          throw QueryException('expected inclusion and exclusion argument, found ${queryArgs.sublist(2)}');
+        }
+
+      }
+      else {
+        throw QueryException('expected 1-3 arguments to RestrictQuery, found ${queryArgs.length}');
+      }
 
     case 's':
       if (queryArgs.length == 1) {

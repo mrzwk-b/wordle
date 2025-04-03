@@ -233,6 +233,10 @@ class ExpressionQuery extends Query {
     }
   }
 
+  Iterable<String> executeFixed(Iterable<String> options) => 
+    options.where((word) => isWordMatch(word, pattern))
+  ;
+
   @override
   String report() {
     // create a set of options that fulfills include/exclude requirements
@@ -286,9 +290,7 @@ class ExpressionQuery extends Query {
     }
     // fixed
     else {
-      final List<String> results = [
-        for (final String word in options.where((word) => isWordMatch(word, pattern))) word
-      ];
+      final Iterable<String> results = executeFixed(options);
       return 
         "${results.join('\n')}\n\n"
         "total: ${results.length}"
