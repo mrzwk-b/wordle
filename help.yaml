@@ -24,16 +24,16 @@ msg:
   - name: structure
     abbr: s
     msg:
-    - \"g", followed by the word you guessed, followed by the result of that guess
+    - '"g", followed by the word you guessed, followed by the result of that guess'
     - e.g., "g slice bbbgy"
   - name: colors
     abbr: c
     msg:
     - "the 2nd argument of g (the guess' result) allows only 3 types of characters:"
     -
-      - \"b" (blank) the letter guessed in that slot doesn't occur anywhere in the target word
-      - \"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word
-      - \"g" (green) the letter guessed in that slot occurs in that slot in the target word
+      - "\"b\" (blank) the letter guessed in that slot doesn't occur anywhere in the target word"
+      - '"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word'
+      - '"g" (green) the letter guessed in that slot occurs in that slot in the target word'
 - name: letter
   abbr: l
   msg:
@@ -88,12 +88,15 @@ msg:
     - pass a range to see results for all words within that range
     -
       - range boundaries can be specified by either numerical score or a word itself
+      - ranges are defined by how good the score is, not necessarily whether it's greater or less
+      - ranges formatted as "worst:best" or ":worst/best:"
       - ranges must contain a ":", but do not require either an upper or lower bound
-      - ranges formatted as "start:end"
     - e.g., 
     - 
-      - '"v positional :50" to see all words with a score less than 50 with no lower bound'
-      - '"v positional chose:" to see all words with a score at least as high as that of "chose"'
+      - '"v positional :50" to see all words with a score worse than 50 with no lower bound'
+      - '"v positional chose:" to see all words with a score at least as good as that of "chose"'
+      - '"v positional :guess:" to see all words with a score equal to guess'
+      - '"v positional :" to see all words'
   - name: results
     abbr: s
     msg:
@@ -102,26 +105,24 @@ msg:
       - the word
       - its score according to the given evaluator
       - its rank out of the total number of options
-  - name: list
+  - name: list of evaluators
     abbr: l
     msg:
     - name: positionless
       abbr: s
       msg:
-      - evaluates each letter of a potential guess based on
-      - how often it occurs in total
+      - evaluates each letter of a potential guess based on how often it occurs in total
       - higher scores are better
     - name: positional
       abbr: l
       msg:
-      - evaluates each letter of a potential guess based on
-      - how often it occurs in that position
+      - evaluates each letter of a potential guess based on how often it occurs in that position
       - higher scores are better
     - name: contextual
       abbr: c
       msg:
-      - evaluates each letter of a potential guess based on
-      - how often it occurs preceded and followed by the letters that precede and follow it in the guess
+      - evaluates each letter of a potential guess based on how often it occurs 
+      - preceded and followed by the letters that precede and follow it in the guess
       - higher scores are better
     - name: balancing
       abbr: b
