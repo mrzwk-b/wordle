@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:wordle/data/data.dart';
+import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
 import 'package:wordle/queries/guess_query.dart';
@@ -15,7 +17,19 @@ class Guess {
 class BotQuery extends Query {
   final String evaluator;
   final String answer;
-  BotQuery(this.evaluator, this.answer);
+  BotQuery(this.evaluator, this.answer) {
+    // ensure that the state of [data] allows for [answer]
+    push(Data(
+      data.possible.contains(answer)
+        ? data.possible
+        : data.possible.toSet()..add(answer)
+      ,
+      data.past.contains(answer)
+        ? (data.past.toSet()..remove(answer))
+        : data.past
+      ,
+    ), "BOT_QUERY_INIT");
+  }
 
   String guessResponse(final String guess) {
     List<String> response = List.filled(5, 'b');
@@ -48,15 +62,15 @@ class BotQuery extends Query {
         final String guess = bestWords[random.nextInt(bestWords.length)];
         final String response = guessResponse(guess);
 
+        guesses.add(Guess(guess, response));
         GuessQuery(guess, response).execute();
         if (response == 'ggggg') {
           break;
         }
-        guesses.add(Guess(guess, response));
       }
     }
     finally {
-      StateQuery(count: guesses.length).execute();
+      StateQuery(word: "BOT_QUERY_INIT").execute();
     }
     
     return [
