@@ -24,6 +24,7 @@ bool isWordMatch(final String word, final String pattern) {
     // start trying to match the pattern from where we are in the word
     int wordIndex = wordStart;
     bool matching = true;
+    List<String?> numbereds = List.filled(5, null);
     for (int patternIndex = 0; patternIndex < pattern.length; patternIndex++) {
       if (pattern[patternIndex] == '#') {
         matching = wordIndex == 0 || wordIndex == 5;
@@ -142,6 +143,53 @@ bool isWordMatch(final String word, final String pattern) {
               }
               patternIndex++;
             }
+          case String token when int.tryParse(token) != null:
+            int num = int.parse(token) - 1;
+            if ((numbereds.toList()..removeAt(num)).contains(word[wordIndex]) ) {
+              matching = false;
+            }
+            else {  
+              if (numbereds[num] == null) {
+                numbereds[num] = word[wordIndex];
+              }
+              int matchLength = word
+                .substring(wordIndex)
+                .split("")
+                .indexWhere((letter) => letter != numbereds[num])
+              ;
+              // unquantified
+              if (patternIndex + 1 >= pattern.length || !{'^', '&', '*'}.contains(pattern[patternIndex + 1])) {
+                if (matchLength == 0) {
+                  matching = false;
+                }
+                else {
+                  wordIndex++;
+                }
+              }
+              // quantified
+              else {
+                switch (pattern[patternIndex + 1]) {
+                  case '^':
+                    if (matchLength == 1) {
+                      wordIndex++;
+                    }
+                  case '&':
+                    if (matchLength == 0) {
+                      matching = false;
+                    }
+                    else {
+                      wordIndex += matchLength;
+                    }
+                  case '*':
+                    wordIndex += matchLength;
+                  default:
+                    throw QueryException(
+                      "quantifier ${pattern[patternIndex + 1]} is not a quantifier in ExpressionQuery"
+                    );
+                }
+                patternIndex++;
+              }
+            }
           default:
             int matchLength = word
               .substring(wordIndex)
@@ -207,7 +255,9 @@ class ExpressionQuery extends Query {
   final Set<String> exclude;
 
   ExpressionQuery(this.pattern, {this.include = const {}, this.exclude = const {}}) {
-    Iterable<RegExpMatch> matches = RegExp('[^a-z${specialCharacters.join()}]').allMatches(pattern);
+    Iterable<RegExpMatch> matches = RegExp(
+      '[^1-5a-z${specialCharacters.join()}]'
+    ).allMatches(pattern);
     if (matches.length != 0) {
       throw QueryException(
         '"${matches.map((match) => match.group(0)).join('", "')}" '
