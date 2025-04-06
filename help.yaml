@@ -78,44 +78,7 @@ msg:
   msg:
   - updates the set of possible words and all derived values
   - to exclude words that don't match the given pattern
-  - name: patterns
-    abbr: p
-    msg:
-    - 'patterns consist of:'
-    -
-      - normal letters
-      - special tokens that match more general word elements
-      - quantifiers
-    - name: special tokens
-      abbr: s
-      msg:
-      - name: generic
-        abbr: _
-        msg:
-        - matches any letter
-      - name: vowel
-        abbr: '@'
-        msg:
-        - matches any vowel
-        - '"a", "e", "i", "o", "u", and "y" are all vowels'
-      - name: consonant
-        abbr: $
-        msg:
-        - matches any consonant
-        - any letter other than "a", "e", "i", "o", or "u" is a consonant
-        - including "y"
-      - name: word boundary
-        abbr: '#'
-        msg:
-        - matches the beginning or end of a word
-    - name: quantifiers
-      abbr: q
-      msg:
-      - quantifiers cause the preceding token to match different numbers of instances
-      -
-        - '^: 0 or 1'
-        - '&: 1 or more'
-        - '*: 0 or more'
+  - see "h x p" for help with patterns
 
 - name: evaluator
   abbr: v
@@ -234,6 +197,7 @@ msg:
     -
       - normal letters
       - special tokens that match more general word elements
+      - numbers 1-5
       - quantifiers
     - name: special tokens
       abbr: s
@@ -262,6 +226,13 @@ msg:
         msg:
         - matches any letter (like "_"), but alters the result type of query
         - see "h x v" for more information on variable queries
+    - name: numbers
+      abbr: n
+      msg:
+      - matches any letter, but stores that letter for reference later in the pattern
+      - e.g., "x 11" matches any sequence of 2 identical letters
+      - letters cannot be referred to by more than one number
+      - e.g., "x 12" matches any sequence of 2 distinct letters
     - name: quantifiers
       abbr: q
       msg:
