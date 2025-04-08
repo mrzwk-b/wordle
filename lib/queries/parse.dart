@@ -29,14 +29,14 @@ Map<String, int> parseInclusion(String arg) {
 }
 
 Set<String> parseExclusion(String arg) {
-  Set<String> inclusions = {};
+  Set<String> exclusions = {};
   for (String letter in arg.split("")) {
     if (!alphabet.contains(letter)) {
-      throw QueryException('expected only letters in inclusion argument, found "$letter"');
+      throw QueryException('expected only letters in exclusion argument, found "$letter"');
     }
-    inclusions.add(letter);
+    exclusions.add(letter);
   }
-  return inclusions;
+  return exclusions;
 }
 
 Query parse(String input) {
@@ -302,6 +302,12 @@ Query parse(String input) {
       return WordQuery(queryArgs[1]);
 
     case 'x':
+      String pattern = "";
+      Map<String, int>? inclusions;
+      Set<String>? exclusions;
+      bool negation = false;
+      
+
       if (queryArgs.length == 2) {
         return ExpressionQuery(queryArgs[1]);
       }

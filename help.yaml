@@ -77,8 +77,9 @@ msg:
   abbr: r
   msg:
   - updates the set of possible words and all derived values
-  - to exclude words that don't match the given pattern
-  - see "h x p" for help with patterns
+  - to exclude words that don't match the given expression
+  - e.g., "r ee" to limit set to words that contain a "ee" segment
+  - see "h x" for help with expressions
 
 - name: evaluator
   abbr: v
@@ -157,8 +158,11 @@ msg:
 - name: expression
   abbr: x
   msg:
-  - pass a string to match against words
-  - optionally, also pass a set of letters to require to be included/excluded
+  - pass a pattern to match against words
+  - 'optionally:'
+  -
+    - pass a set of letters preceded by "+/-" to require to be included/excluded
+    - pass a "!" at the end to negate the entire expression
   - name: fixed
     abbr: f
     msg:
@@ -190,6 +194,11 @@ msg:
       msg:
       - excluded letters must be preceded with "-"
       - e.g., "x _ -r" to see all words that do not contain "r"
+  - name: negation
+    abbr: n
+    msg:
+    - pass "!" as a final argument to match words that don't match the expression
+    - e.g., "x ed# !" to match all words that don't end with "ed"
   - name: patterns
     abbr: p
     msg:
