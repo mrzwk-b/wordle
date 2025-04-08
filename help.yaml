@@ -199,6 +199,7 @@ msg:
     msg:
     - pass "!" as a final argument to match words that don't match the expression
     - e.g., "x ed# !" to match all words that don't end with "ed"
+    - cannot be used in variable queries
   - name: patterns
     abbr: p
     msg:

@@ -39,10 +39,46 @@ Set<String> parseExclusion(String arg) {
   return exclusions;
 }
 
+typedef Expression = ({
+  String pattern,
+  Map<String, int> inclusion,
+  Set<String> exclusion,
+  bool negation
+});
+
+Expression parseExpression(List<String> args) {
+  if (args.length < 1 || args.length > 4) {
+    throw QueryException('expected 1-4 arguments of expression, found ${args.length}');
+  }
+  bool negation = args.last == '!';
+  Map<String, int> inclusion = {};
+  Set<String> exclusion = {};
+  for (String arg in args.sublist(1)) {
+    if (arg.startsWith('+')) {
+      if (inclusion != {}) {
+        throw QueryException('cannot pass 2 inclusion arguments in expression');
+      }
+      inclusion = parseInclusion(arg);
+    }
+    if (arg.startsWith('-')) {
+      if (exclusion != {}) {
+        throw QueryException('cannot pass 2 exclusion arguments in expression');
+      }
+      exclusion = parseExclusion(arg);
+    }
+  }
+  return (
+    pattern: args[0],
+    inclusion: inclusion,
+    exclusion: exclusion,
+    negation: negation
+  );
+}
+
 Query parse(String input) {
   List<String> queryArgs = input.split(" ");
   switch (queryArgs[0]) {
-    case 'b':
+    case 'b': {
       if (queryArgs.length != 3) {
         throw QueryException("expected 2 arguments for BotQuery, found ${queryArgs.length - 1}");
       }
@@ -53,8 +89,8 @@ Query parse(String input) {
         throw QueryException('expected 5 letter alphabetic second argument of BotQuery, found "${queryArgs[2]}"');
       }
       return BotQuery(queryArgs[1], queryArgs[2]);
-
-    case 'g':
+    }
+    case 'g': {
       if (queryArgs.length != 3) {
         throw QueryException("expected 2 arguments for ExpressionQuery, found ${queryArgs.length - 1}");
       }
@@ -65,11 +101,11 @@ Query parse(String input) {
         throw QueryException('expected 5 letter "bgy"-only argument for result of GuessQuery, found "${queryArgs[2]}"');
       }
       return GuessQuery(queryArgs[1], queryArgs[2]);
-
-    case 'h':
+    }
+    case 'h': {
       return HelpQuery(queryArgs.sublist(1));
-
-    case 'l':
+    }
+    case 'l': {
       if (queryArgs.length == 1) {
         return LetterQuery();
       }
@@ -77,48 +113,20 @@ Query parse(String input) {
         throw QueryException("expected 1 argument for LetterQuery, found ${queryArgs.length - 1}");
       }
       return LetterQuery(queryArgs[1]);
-
-    case 'q':
+    }
+    case 'q': {
       return QuitQuery();
-
-    case 'r':
-      if (queryArgs.length == 2) {
-        return RestrictQuery(queryArgs[1]);
-      }
-      else if (queryArgs.length == 3) {
-        if (queryArgs[2].startsWith('+')) {
-          return RestrictQuery(queryArgs[1], include: parseInclusion(queryArgs[2].substring(1)));
-        }
-        else if (queryArgs[2].startsWith('-')) {
-          return RestrictQuery(queryArgs[1], exclude: parseExclusion(queryArgs[2].substring(1)));
-        }
-        else {
-          throw QueryException('expected inclusion or exclusion argument, found "${queryArgs[2]}"');
-        }
-      }
-      else if (queryArgs.length == 4) {
-        if (queryArgs[2].startsWith('+') && queryArgs[3].startsWith('-')) {
-          return RestrictQuery(queryArgs[1],
-            include: parseInclusion(queryArgs[2].substring(1)),
-            exclude: parseExclusion(queryArgs[3].substring(1))
-          );
-        }
-        else if (queryArgs[3].startsWith('+') && queryArgs[2].startsWith('-')) {
-          return RestrictQuery(queryArgs[1],
-            include: parseInclusion(queryArgs[3].substring(1)),
-            exclude: parseExclusion(queryArgs[2].substring(1))
-          );
-        }
-        else {
-          throw QueryException('expected inclusion and exclusion argument, found ${queryArgs.sublist(2)}');
-        }
-
-      }
-      else {
-        throw QueryException('expected 1-3 arguments to RestrictQuery, found ${queryArgs.length}');
-      }
-
-    case 's':
+    }
+    case 'r': {
+      Expression expr = parseExpression(queryArgs.sublist(1));
+      return RestrictQuery(
+        expr.pattern,
+        include: expr.inclusion,
+        exclude: expr.exclusion,
+        negate: expr.negation,
+      );
+    }
+    case 's': {
       if (queryArgs.length == 1) {
         return StateQuery();
       }
@@ -142,8 +150,8 @@ Query parse(String input) {
         }
         return StateQuery(word: queryArgs[1]);
       }
-
-    case 'v':
+    }
+    case 'v': {
       if (queryArgs.length < 3 || queryArgs.length > 5) {
         throw QueryException("expected 2-4 arguments for evaluator query, found ${queryArgs.length - 1}");
       }
@@ -294,57 +302,24 @@ Query parse(String input) {
           }
         }
       }
-
-    case 'w':
+    }
+    case 'w': {
       if (queryArgs.length != 2) {
         throw QueryException("expected 1 argument for WordQuery, found ${queryArgs.length - 1}");
       }
       return WordQuery(queryArgs[1]);
-
-    case 'x':
-      String pattern = "";
-      Map<String, int>? inclusions;
-      Set<String>? exclusions;
-      bool negation = false;
-      
-
-      if (queryArgs.length == 2) {
-        return ExpressionQuery(queryArgs[1]);
-      }
-      else if (queryArgs.length == 3) {
-        if (queryArgs[2].startsWith('+')) {
-          return ExpressionQuery(queryArgs[1], include: parseInclusion(queryArgs[2].substring(1)));
-        }
-        else if (queryArgs[2].startsWith('-')) {
-          return ExpressionQuery(queryArgs[1], exclude: parseExclusion(queryArgs[2].substring(1)));
-        }
-        else {
-          throw QueryException('expected inclusion or exclusion argument, found "${queryArgs[2]}"');
-        }
-      }
-      else if (queryArgs.length == 4) {
-        if (queryArgs[2].startsWith('+') && queryArgs[3].startsWith('-')) {
-          return ExpressionQuery(queryArgs[1],
-            include: parseInclusion(queryArgs[2].substring(1)),
-            exclude: parseExclusion(queryArgs[3].substring(1))
-          );
-        }
-        else if (queryArgs[3].startsWith('+') && queryArgs[2].startsWith('-')) {
-          return ExpressionQuery(queryArgs[1],
-            include: parseInclusion(queryArgs[3].substring(1)),
-            exclude: parseExclusion(queryArgs[2].substring(1))
-          );
-        }
-        else {
-          throw QueryException('expected inclusion and exclusion argument, found ${queryArgs.sublist(2)}');
-        }
-
-      }
-      else {
-        throw QueryException('expected 1-3 arguments to ExpressionQuery, found ${queryArgs.length}');
-      }
-      
-    default:
+    }
+    case 'x': {
+      Expression expr = parseExpression(queryArgs.sublist(1));
+      return ExpressionQuery(
+        expr.pattern,
+        include: expr.inclusion,
+        exclude: expr.exclusion,
+        negate: expr.negation,
+      );
+    }
+    default: {
       throw QueryException('"${queryArgs[0]}" does not correspond to a valid query type');
-  }  
+    }
+  }
 }

@@ -8,17 +8,6 @@ const Set<String> quantifiers = {r'^', r'&', r'*'};
 const Set<String> vowels = {'a', 'e', 'i', 'o', 'u', 'y'};
 const Set<String> consonants = {'b','c','d','f','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z'};
 
-bool isLetterMatch(final String letter, final String pattern) => 
-  pattern.length == 1 && letter.length == 1 && alphabet.contains(letter) &&
-  switch (pattern) {
-    '@' => vowels.contains(letter),
-    r'$' => consonants.contains(letter),
-    '_' => true,
-    '?' => true,
-    _ => letter == pattern
-  }
-;
-
 (bool, int) quantifyMatch(int maxMatchLength, String pattern) {
   bool matching = true;
   int actualMatchLength = 0;
@@ -80,89 +69,52 @@ bool isWordMatch(final String word, final String pattern) {
       }
       else if (wordIndex < 5) {
         int matchLength;
-        int tokenSize;
+        int tokenSize= (
+          patternIndex < pattern.length - 1 && 
+          quantifiers.contains(pattern[patternIndex + 1])
+        ) ? 2 : 1;
         switch (pattern[patternIndex]) {
           case '@': {
-            matchLength = word
-              .substring(wordIndex)
-              .split("")
-              .indexWhere((letter) => !vowels.contains(letter))
-            ;
-            tokenSize = (
-              patternIndex < pattern.length - 1 && 
-              quantifiers.contains(pattern[patternIndex + 1])
-            ) ? 2 : 1;
-            (matching, matchLength) = quantifyMatch(matchLength, pattern.substring(
-              patternIndex + 1,
-              patternIndex + tokenSize
-            ));
+            (matching, matchLength) = quantifyMatch(
+              word.substring(wordIndex).split("").indexWhere((letter) => !vowels.contains(letter)),
+              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+            );
           }
           case r'$': {
-            matchLength = word
-              .substring(wordIndex)
-              .split("")
-              .indexWhere((letter) => !consonants.contains(letter))
-            ;
-            tokenSize = (
-              patternIndex < pattern.length - 1 && 
-              quantifiers.contains(pattern[patternIndex + 1])
-            ) ? 2 : 1;
-            (matching, matchLength) = quantifyMatch(matchLength, pattern.substring(
-              patternIndex + 1,
-              patternIndex + tokenSize
-            ));
+            (matching, matchLength) = quantifyMatch(
+              word.substring(wordIndex).split("").indexWhere((letter) => !consonants.contains(letter)),
+              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+            );
           }
-          case '?':
+          case '?': {
             throw QueryException('"?" cannot occur in fixed expression query');
+          }
           case '_': {
-            matchLength = word.substring(wordIndex).length - 1;
-            tokenSize = (
-              patternIndex < pattern.length - 1 && 
-              quantifiers.contains(pattern[patternIndex + 1])
-            ) ? 2 : 1;
-            (matching, matchLength) = quantifyMatch(matchLength, pattern.substring(
-              patternIndex + 1,
-              patternIndex + tokenSize
-            ));
+            (matching, matchLength) = quantifyMatch(
+              word.substring(wordIndex).length - 1,
+              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+            );
           }
           case String token when int.tryParse(token) != null: {
             int num = int.parse(token) - 1;
-            if ((numbereds.toList()..removeAt(num)).contains(word[wordIndex]) ) {
+            if ((numbereds.toList()..removeAt(num)).contains(word[wordIndex])) {
               continue wordLoop;
             }
             else {  
               if (numbereds[num] == null) {
                 numbereds[num] = word[wordIndex];
               }
-              matchLength = word
-                .substring(wordIndex)
-                .split("")
-                .indexWhere((letter) => letter != numbereds[num])
-              ;
-            tokenSize = (
-              patternIndex < pattern.length - 1 && 
-              quantifiers.contains(pattern[patternIndex + 1])
-            ) ? 2 : 1;
-              (matching, matchLength) = quantifyMatch(matchLength, pattern.substring(
-                patternIndex + 1,
-                patternIndex + tokenSize
-              ));
+              (matching, matchLength) = quantifyMatch(
+                word.substring(wordIndex).split("").indexWhere((letter) => letter != numbereds[num]),
+                pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+              );
             }
           }
           default: {
-            matchLength = word
-              .substring(wordIndex)
-              .split("")
-              .indexWhere((letter) => letter != pattern[patternIndex])
-            ;
-            tokenSize = (
-              patternIndex < pattern.length - 1 && 
-              quantifiers.contains(pattern[patternIndex + 1])
-            ) ? 2 : 1;
-            (matching, matchLength) = quantifyMatch(matchLength, pattern.substring(
-              patternIndex + 1,
-              patternIndex + tokenSize
-            ));
+            (matching, matchLength) = quantifyMatch(
+              word.substring(wordIndex).split("").indexWhere((letter) => letter != pattern[patternIndex]),
+              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+            );
           }
         }
         patternIndex += tokenSize;
@@ -190,8 +142,9 @@ class ExpressionQuery extends Query {
   final String pattern;
   final Map<String, int> include;
   final Set<String> exclude;
+  final bool negate;
 
-  ExpressionQuery(this.pattern, {this.include = const {}, this.exclude = const {}}) {
+  ExpressionQuery(this.pattern, {this.include = const {}, this.exclude = const {}, this.negate = false}) {
     Iterable<RegExpMatch> matches = RegExp(
       '[^1-5a-z${specialCharacters.join()}]'
     ).allMatches(pattern);
@@ -201,6 +154,9 @@ class ExpressionQuery extends Query {
         '${matches.length > 1 ? 'are not valid characters' : 'is not a valid character'} '
         'of an ExpressionQuery'
       );
+    }
+    if (negate && pattern.contains('?')) {
+      throw QueryException('cannot negate variable expression query');
     }
     for (final String letter in include.keys) {
       if (!alphabet.contains(letter)) {
@@ -220,28 +176,28 @@ class ExpressionQuery extends Query {
     }
   }
 
+  bool getNegation(bool value) => negate ? !value : value;
+
   Iterable<String> executeFixed(Iterable<String> options) => 
-    options.where((word) => isWordMatch(word, pattern))
+    options.where((word) => getNegation(isWordMatch(word, pattern)))
   ;
 
   @override
   String report() {
     // create a set of options that fulfills include/exclude requirements
     final Set<String> illegal = {};
+    wordLoop:
     for (final String word in data.options) {
       for (final String letter in exclude) {
-        if (word.contains(letter)) {
+        if (getNegation(word.contains(letter))) {
           illegal.add(word);
-          break;
+          continue wordLoop;
         }
       }
-      if (illegal.contains(word)) {
-        continue;
-      }
       for (final String letter in include.keys) {
-        if (word.split("").where((slot) => slot == letter).length < include[letter]!) {
+        if (getNegation(word.split("").where((slot) => slot == letter).length < include[letter]!)) {
           illegal.add(word);
-          break;
+          continue wordLoop;
         }
       }
     }

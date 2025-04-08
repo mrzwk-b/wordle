@@ -8,8 +8,9 @@ class RestrictQuery extends Query {
   final String pattern;
   final Map<String, int> include;
   final Set<String> exclude;
+  final bool negate;
 
-  RestrictQuery(this.pattern, {this.include = const {}, this.exclude = const {}}) {
+  RestrictQuery(this.pattern, {this.include = const {}, this.exclude = const {}, this.negate = false}) {
     Iterable<RegExpMatch> matches = RegExp('[^a-z${
       (specialCharacters.toSet()..remove('?')).join()
     }]').allMatches(pattern);
@@ -42,7 +43,12 @@ class RestrictQuery extends Query {
   String report() {
     push(
       Data(
-        ExpressionQuery(pattern, include: include, exclude: exclude).executeFixed(data.options).toSet(),
+        ExpressionQuery(
+          pattern,
+          include: include,
+          exclude: exclude,
+          negate: negate
+        ).executeFixed(data.options).toSet(),
         data.past  
       ),
       "r $pattern"
