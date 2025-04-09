@@ -3,32 +3,32 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
 
 class GuessQuery extends Query {
-  String word;
-  String result;
+  final String word;
+  final String result;
   GuessQuery(this.word, this.result);
 
   Set<String> reflectChange({
-    List<String?> blank = const [],
-    List<String?> yellow = const [],
-    List<String?> green = const []
+    final List<String?> blank = const [],
+    final List<String?> yellow = const [],
+    final List<String?> green = const []
   }) {
-    Set<String> possible = data.possible.where((_) => true).toSet();
+    Set<String> possible = data.possible.toSet();
     // get the letters that need to be included
     final Map<String, int> include = {};
-    for (String? letter in yellow) {
+    for (final String? letter in yellow) {
       if (letter != null) {
         include.update(letter, (count) => count + 1, ifAbsent: () => 1);
       }
     }
     // get the letters that need to be excluded
     final Set<String> forbidden = {};
-    for (String? letter in blank) {
+    for (final String? letter in blank) {
       if (letter != null) {
         forbidden.add(letter);
       }
     }
     // filter [possible]
-    for (String word in possible.toList(growable: false)) {
+    for (final String word in possible.toList(growable: false)) {
       final Map<String, int> letterCounts = {};
       // scan word for illegal letters
       for (int i = 0; i < 5; i++) {
@@ -51,7 +51,7 @@ class GuessQuery extends Query {
         }
       }
       // make sure all values in [include] are accounted for
-      for (String letter in include.keys) {
+      for (final String letter in include.keys) {
         if ((letterCounts[letter] ?? 0) < include[letter]!) {
           possible.remove(word);
           break;
@@ -87,6 +87,5 @@ class GuessQuery extends Query {
   String report() {
     execute();
     return "update complete, now ${data.options.length} possible words";
-  }
-  
+  } 
 }

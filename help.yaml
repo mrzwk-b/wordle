@@ -17,25 +17,11 @@ msg:
     - to see how a bot making guesses from the top of the positional evaluator
     - would play a game where "crest" was the answer
 
-- name: guess
+- name: grid
   abbr: g
   msg: 
-  - updates the set of possible words and all derived values
-  - based on the information Wordle gives after a word is guessed
-  - then prints the number of words remaining as options
-  - name: structure
-    abbr: s
-    msg:
-    - '"g", followed by the word you guessed, followed by the result of that guess'
-    - e.g., "g slice bbbgy"
-  - name: colors
-    abbr: c
-    msg:
-    - "the 2nd argument of g (the guess' result) allows only 3 types of characters:"
-    -
-      - "\"b\" (blank) the letter guessed in that slot doesn't occur anywhere in the target word"
-      - '"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word'
-      - '"g" (green) the letter guessed in that slot occurs in that slot in the target word'
+  - takes an answer and a list of responses
+  - then tries to figure out what guesses generated those responses
 
 - name: letter
   abbr: l
@@ -76,10 +62,24 @@ msg:
 - name: restrict
   abbr: r
   msg:
-  - updates the set of possible words and all derived values
-  - to exclude words that don't match the given expression
-  - e.g., "r ee" to limit set to words that contain a "ee" segment
-  - see "h x" for help with expressions
+  - updates the set of possible words and all derived values based on a given restriction
+  - name: expression
+    abbr: x
+    msg:
+    - exclude words that don't match the given expression
+    - e.g., "r ee" to limit set to words that contain a "ee" segment
+    - see "h x" for help with expressions
+  - name: guess
+    abbr: g
+    msg:
+    - exclude words that are impossible based on the information Wordle gives after a guess
+    - pass the guessed word followed by its result
+    - "the 2nd argument (the guess' result) allows only 3 types of characters:"
+    -
+      - "\"b\" (blank) the letter guessed in that slot doesn't occur anywhere in the target word"
+      - '"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word'
+      - '"g" (green) the letter guessed in that slot occurs in that slot in the target word'
+    - e.g., "r think ybggb" would be a guess restriction in a game where the answer was "glint"
 
 - name: evaluator
   abbr: v

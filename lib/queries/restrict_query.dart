@@ -54,6 +54,7 @@ class RestrictQuery extends Query {
       "r $pattern"
       "${include.isEmpty ? "" : " +${include.entries.map((entry) => entry.key * entry.value).join()}"}"
       "${exclude.isEmpty ? "" : " -${exclude.join()}"}"
+      "${!negate ? "" : " !"}"
     );
     return "update complete, now ${data.options.length} possible words";
   }
