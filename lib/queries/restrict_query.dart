@@ -49,7 +49,7 @@ class RestrictQuery extends Query {
           exclude: exclude,
           negate: negate
         ).executeFixed(data.options).toSet(),
-        data.past  
+        data.past
       ),
       "r $pattern"
       "${include.isEmpty ? "" : " +${include.entries.map((entry) => entry.key * entry.value).join()}"}"

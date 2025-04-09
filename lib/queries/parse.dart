@@ -46,8 +46,8 @@ Set<String> parseExclusion(final String arg) {
 
 typedef Expression = ({
   String pattern,
-  Map<String, int> inclusion,
-  Set<String> exclusion,
+  Map<String, int>? inclusion,
+  Set<String>? exclusion,
   bool negation
 });
 
@@ -56,20 +56,20 @@ Expression parseExpression(final List<String> args) {
     throw QueryException('expected 1-4 arguments of expression, found ${args.length}');
   }
   final bool negation = args.last == '!';
-  Map<String, int> inclusion = {};
-  Set<String> exclusion = {};
+  Map<String, int>? inclusion = null;
+  Set<String>? exclusion = null;
   for (final String arg in args.sublist(1)) {
     if (arg.startsWith('+')) {
-      if (inclusion != <String, int>{}) {
+      if (inclusion != null) {
         throw QueryException('cannot pass 2 inclusion arguments in expression');
       }
-      inclusion = parseInclusion(arg);
+      inclusion = parseInclusion(arg.substring(1));
     }
     if (arg.startsWith('-')) {
-      if (exclusion != <String>{}) {
+      if (exclusion != null) {
         throw QueryException('cannot pass 2 exclusion arguments in expression');
       }
-      exclusion = parseExclusion(arg);
+      exclusion = parseExclusion(arg.substring(1));
     }
   }
   return (
@@ -138,8 +138,8 @@ Query parse(final String input) {
         Expression expr = parseExpression(queryArgs.sublist(1));
         return RestrictQuery(
           expr.pattern,
-          include: expr.inclusion,
-          exclude: expr.exclusion,
+          include: expr.inclusion ?? {},
+          exclude: expr.exclusion ?? {},
           negate: expr.negation,
         );
       }
@@ -331,8 +331,8 @@ Query parse(final String input) {
       Expression expr = parseExpression(queryArgs.sublist(1));
       return ExpressionQuery(
         expr.pattern,
-        include: expr.inclusion,
-        exclude: expr.exclusion,
+        include: expr.inclusion ?? {},
+        exclude: expr.exclusion ?? {},
         negate: expr.negation,
       );
     }
