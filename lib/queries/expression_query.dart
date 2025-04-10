@@ -143,6 +143,7 @@ class ExpressionQuery extends Query {
   final Map<String, int> include;
   final Set<String> exclude;
   final bool negate;
+  late final Set<String> options;
 
   ExpressionQuery(this.pattern, {this.include = const {}, this.exclude = const {}, this.negate = false}) {
     Iterable<RegExpMatch> matches = RegExp(
@@ -174,16 +175,7 @@ class ExpressionQuery extends Query {
         );
       }
     }
-  }
 
-  bool getNegation(bool value) => negate ? !value : value;
-
-  Iterable<String> executeFixed(Iterable<String> options) => 
-    options.where((word) => getNegation(isWordMatch(word, pattern)))
-  ;
-
-  @override
-  String report() {
     // create a set of options that fulfills include/exclude requirements
     final Set<String> illegal = {};
     wordLoop:
@@ -201,10 +193,17 @@ class ExpressionQuery extends Query {
         }
       }
     }
-    Set<String> options = data.options.difference(illegal);
+    options = data.options.difference(illegal);
+  }
 
-    // evaluate query
-    
+  bool getNegation(bool value) => negate ? !value : value;
+
+  Iterable<String> executeFixed() => 
+    options.where((word) => getNegation(isWordMatch(word, pattern)))
+  ;
+
+  @override
+  String report() {
     // variable
     if (pattern.contains('?')) {
       int unmatchedWordCount = 0;
@@ -233,7 +232,7 @@ class ExpressionQuery extends Query {
     }
     // fixed
     else {
-      final Iterable<String> results = executeFixed(options);
+      final Iterable<String> results = executeFixed();
       return 
         "${results.join('\n')}\n\n"
         "total: ${results.length}"

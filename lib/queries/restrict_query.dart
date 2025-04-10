@@ -48,7 +48,7 @@ class RestrictQuery extends Query {
           include: include,
           exclude: exclude,
           negate: negate
-        ).executeFixed(data.options).toSet(),
+        ).executeFixed().toSet(),
         data.past
       ),
       "r $pattern"
