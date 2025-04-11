@@ -99,15 +99,17 @@ Query parse(final String input) {
       if (!isValidWord(queryArgs[1])) {
         throw QueryException('expected valid word for first argument of GridQuery, found ${queryArgs[1]}');
       }
-      if (queryArgs.length > 8) {
+      bool usePast = queryArgs.last == '*';
+      List<String> responses = queryArgs.sublist(2, usePast ? queryArgs.length - 1 : null);
+      if (responses.length > 6) {
         throw QueryException('${queryArgs.length - 2} is too many response arguments for GridQuery, max 6');
       }
-      for (final String response in queryArgs.sublist(2)) {
+      for (final String response in responses) {
         if (!isValidResponse(response)) {
           throw QueryException('expected valid guess response for argument of GridQuery, found $response');
         }
       }
-      return GridQuery(queryArgs[1], queryArgs.sublist(2));
+      return GridQuery(queryArgs[1], responses, usePast: usePast);
     }
     case 'h': {
       return HelpQuery(queryArgs.sublist(1));

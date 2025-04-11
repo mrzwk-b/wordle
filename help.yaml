@@ -22,6 +22,11 @@ msg:
   msg: 
   - takes an answer and a list of responses
   - then tries to figure out what guesses generated those responses
+  - pass "*" as a final argument to allow guesses that have been used before
+  - doesn't yield results where
+  -
+    - guesses aren't in the list of possible answers
+    - hard mode is violated, i.e., guesses don't make use of all information obtained so far
 
 - name: letter
   abbr: l

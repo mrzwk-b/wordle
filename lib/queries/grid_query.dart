@@ -1,3 +1,4 @@
+import 'package:wordle/data/data.dart';
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/query.dart';
@@ -13,13 +14,18 @@ class GridQuery extends Query {
   final String answer;
   final List<String> responses;
   final Map<String, int> answerLetterCounts;
-  GridQuery(final String answer, this.responses):
+  final bool usePast;
+  GridQuery(final String answer, this.responses, {this.usePast = false}):
     answer = answer,
     answerLetterCounts = Map.fromIterable(answer.split("").toSet(),
       key: (letter) => letter,
       value: (letter) => answer.split("").where((slot) => slot == letter).length,
     )
-  ;
+  {
+    if (usePast) {
+      push(Data(data.possible, {}), "GRID_QUERY_CLEAR_PAST");
+    }
+  }
 
   bool isValidGuess(final String guess, final String answer, final String response) {
     Map<String, int> guessLetterCounts = Map.fromIterable(guess.split("").toSet(),
@@ -27,8 +33,30 @@ class GridQuery extends Query {
       value: (_) => 0,
     );
 
+    // add greens to letter counts before main loop
+    for (int i = 0; i < 5; i++) {
+      if (answer[i] == guess[i]) {
+        guessLetterCounts.update(guess[i], (count) => count + 1);
+      }
+    }
+
     for (int i = 0; i < 5; i++) {
       switch (response[i]) {
+        case 'g': {
+          if (answer[i] != guess[i]) {
+            return false;
+          }
+        }
+        case 'y': {
+          if (
+            answer[i] == guess[i] ||
+            !answerLetterCounts.keys.contains(guess[i]) ||
+            answerLetterCounts[guess[i]]! <= guessLetterCounts[guess[i]]!
+          ) {
+            return false;
+          }
+          guessLetterCounts.update(guess[i], (count) => count + 1);
+        }
         case 'b': {
           if (
             answerLetterCounts.keys.contains(guess[i]) &&
@@ -36,21 +64,6 @@ class GridQuery extends Query {
           ) {
             return false;
           }
-        }
-        case 'g': {
-          if (answer[i] != guess[i]) {
-            return false;
-          }
-          guessLetterCounts.update(guess[i], (count) => count + 1);
-        }
-        case 'y': {
-          if (
-            !answerLetterCounts.keys.contains(guess[i]) ||
-            answerLetterCounts[guess[i]]! <= guessLetterCounts[guess[i]]!
-          ) {
-            return false;
-          }
-          guessLetterCounts.update(guess[i], (count) => count + 1);
         }
         default: {
           throw StateError('cannot process a response with non-"byg" elements');
@@ -62,13 +75,12 @@ class GridQuery extends Query {
   }
 
   List<Tree<String>>? explorePossibilities(List<String> grid) {
-    if (grid.length == 0) {
+    if (grid.length == 0 && data.options.length == 1) {
       return [];
     }
     if (data.options.length == 0) {
       return null;
     }
-
     List<Tree<String>> possibilities = [];
     for (final String guess in data.options) {
       if (isValidGuess(guess, answer, grid.first)) {
@@ -77,7 +89,7 @@ class GridQuery extends Query {
         if (pathsFromGuess != null) {
           possibilities.add(Tree(guess, pathsFromGuess));
         }
-        StateQuery(word: guess).execute();
+        StateQuery(count: 1).execute();
       }
     }
     return (possibilities.length == 0)
@@ -86,15 +98,23 @@ class GridQuery extends Query {
     ;
   }
 
-  String displayTree(Tree<String> tree) => [
+  List<String> displayTree(Tree<String> tree) => [
     "${tree.value}",
-    for (Tree<String> child in tree.children) "  ${displayTree(child)}"
-  ].join('\n');
+    for (Tree<String> child in tree.children)
+      for (String line in displayTree(child))
+        "| $line"
+  ];
 
   @override
-  String report() => [
-    for (Tree<String> tree in explorePossibilities(responses) ?? []) (
-      displayTree(tree)
-    )
-  ].join("\n\n");
+  String report() {
+    String result = [
+      for (Tree<String> tree in explorePossibilities(responses) ?? []) (
+        displayTree(tree).join('\n')
+      )
+    ].join("\n\n");
+    if (usePast) {
+      pop(word: "GRID_QUERY_CLEAR_PAST");
+    }
+    return result;
+  }
 }
