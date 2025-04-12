@@ -4,6 +4,7 @@ import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/query.dart';
 import 'package:wordle/queries/state_query.dart';
 
+/// recursive data structure for holding possible sequences of guesses
 class Tree<T> {
   final T value;
   final List<Tree<T>> children;
@@ -27,6 +28,7 @@ class GridQuery extends Query {
     }
   }
 
+  /// determines whether `guess` would've yielded `response` given `answer`
   bool isValidGuess(final String guess, final String answer, final String response) {
     Map<String, int> guessLetterCounts = Map.fromIterable(guess.split("").toSet(),
       key: (letter) => letter,
@@ -74,8 +76,10 @@ class GridQuery extends Query {
     return true;
   }
 
+  /// gets all possible sequences of guesses for `grid`
+  /// given the current state of `data.options`
   List<Tree<String>>? explorePossibilities(List<String> grid) {
-    if (grid.length == 0 && data.options.length == 1) {
+    if (grid.length == 0) {
       return [];
     }
     if (data.options.length == 0) {
@@ -98,6 +102,7 @@ class GridQuery extends Query {
     ;
   }
 
+  /// generates a list of lines for displaying the contents of `tree`
   List<String> displayTree(Tree<String> tree) => [
     "${tree.value}",
     for (Tree<String> child in tree.children)
@@ -111,7 +116,7 @@ class GridQuery extends Query {
       for (Tree<String> tree in explorePossibilities(responses) ?? []) (
         displayTree(tree).join('\n')
       )
-    ].join("\n\n");
+    ].join('\n');
     if (usePast) {
       pop(word: "GRID_QUERY_CLEAR_PAST");
     }
