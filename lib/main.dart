@@ -25,8 +25,12 @@ void main(List<String> argStrs) async {
   late final Set<String> possible;
   late final Set<String> past;
   for (Future assignment in [
-    tryUntilSuccess(scrapePossible).then((value) {possible = value;}),
-    tryUntilSuccess(() => scrapePast(args.option("today"))).then((value) {past = value;}),
+    tryUntilSuccess(getPossibleAnswers).then((value) {
+      possible = value;
+    }),
+    tryUntilSuccess(() => getPastAnswers(args.option("today"))).then((value) {
+      past = value;
+    }),
   ]) {await assignment;}
   
   push(Data(possible, past));
