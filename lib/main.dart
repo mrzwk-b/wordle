@@ -6,6 +6,7 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/data/scrape.dart';
 import 'package:wordle/queries/parse.dart';
 import 'package:wordle/queries/query.dart';
+import 'package:wordle/utils.dart';
 
 Future<Set<String>> tryUntilSuccess(Future<Set<String>> Function() scrape) async {
   while (true) {
@@ -33,7 +34,7 @@ void main(List<String> argStrs) async {
     }),
   ]) {await assignment;}
   
-  push(Data(possible, past));
+  dataTree = Tree(TreeEntry('', Data(possible, past)));
 
   while (true) {
     print("enter a query (h for help):");

@@ -41,7 +41,7 @@ class RestrictQuery extends Query {
 
   @override
   String report() {
-    push(
+    branch(
       Data(
         ExpressionQuery(
           pattern,
@@ -51,10 +51,10 @@ class RestrictQuery extends Query {
         ).executeFixed().toSet(),
         data.past
       ),
-      "r $pattern"
-      "${include.isEmpty ? "" : " +${include.entries.map((entry) => entry.key * entry.value).join()}"}"
-      "${exclude.isEmpty ? "" : " -${exclude.join()}"}"
-      "${!negate ? "" : " !"}"
+      "$pattern"
+      "${include.isEmpty ? "" : "_+${include.entries.map((entry) => entry.key * entry.value).join()}"}"
+      "${exclude.isEmpty ? "" : "_-${exclude.join()}"}"
+      "${!negate ? "" : "_!"}"
     );
     return "update complete, now ${data.options.length} possible words";
   }

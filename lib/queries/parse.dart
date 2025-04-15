@@ -150,25 +150,16 @@ Query parse(final String input) {
       if (queryArgs.length == 1) {
         return StateQuery();
       }
-      else if (queryArgs.length != 2) {
-        throw QueryException("expected 1 argument for StateQuery, found ${queryArgs.length - 1}");
-      }
-      
-      if (int.tryParse(queryArgs[1]) != null) {
-        int count = int.parse(queryArgs[1]);
-        if (stack.length <= count) {
-          throw QueryException("cannot remove $count elements from a stack of length ${stack.length}");
-        }
-        return StateQuery(count: count);
+      else if (queryArgs.length != 3) {
+        throw QueryException("expected 2 arguments to StateQuery, received ${queryArgs.length - 1}");
       }
       else {
-        if (!isValidWord(queryArgs[1])) {
-          throw QueryException("expected valid word as argument for StateQuery, found ${queryArgs[1]}");
-        }
-        if (!stack.map((entry) => entry.name).contains(queryArgs[1])) {
-          throw QueryException('can\'t revert to before "${queryArgs[1]}" because it isn\'t in the stack');
-        }
-        return StateQuery(word: queryArgs[1]);
+        return StateQuery(queryArgs[1], switch (queryArgs[2]) {
+          '<' => NavMode.Return,
+          '>' => NavMode.Advance,
+          '-' => NavMode.Delete,
+          _ => throw QueryException("${queryArgs[2]} is not a valid mode for StateQuery")
+        });
       }
     }
     case 'v': {

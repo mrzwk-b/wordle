@@ -6,7 +6,6 @@ import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
 import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/query.dart';
-import 'package:wordle/queries/state_query.dart';
 
 class Guess {
   final String word;
@@ -19,7 +18,7 @@ class BotQuery extends Query {
   final String answer;
   BotQuery(this.evaluator, this.answer) {
     // ensure that the state of [data] allows for [answer]
-    push(Data(
+    branch(Data(
       data.possible.contains(answer)
         ? data.possible
         : data.possible.toSet()..add(answer)
@@ -70,7 +69,7 @@ class BotQuery extends Query {
       }
     }
     finally {
-      StateQuery(word: "BOT_QUERY_INIT").execute();
+      moveBack(name: "BOT_QUERY_INIT");
     }
     
     return [

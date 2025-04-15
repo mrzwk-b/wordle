@@ -2,14 +2,7 @@ import 'package:wordle/data/data.dart';
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/query.dart';
-import 'package:wordle/queries/state_query.dart';
-
-/// recursive data structure for holding possible sequences of guesses
-class Tree<T> {
-  final T value;
-  final List<Tree<T>> children;
-  Tree(this.value, [this.children = const []]);
-}
+import 'package:wordle/utils.dart';
 
 class GridQuery extends Query {
   final String answer;
@@ -24,7 +17,7 @@ class GridQuery extends Query {
     )
   {
     if (usePast) {
-      push(Data(data.possible, {}), "GRID_QUERY_CLEAR_PAST");
+      branch(Data(data.possible, {}), "GRID_QUERY_CLEAR_PAST");
     }
   }
 
@@ -93,7 +86,7 @@ class GridQuery extends Query {
         if (pathsFromGuess != null) {
           possibilities.add(Tree(guess, pathsFromGuess));
         }
-        StateQuery(count: 1).execute();
+        moveBack(count: 1);
       }
     }
     return (possibilities.length == 0)
@@ -118,7 +111,7 @@ class GridQuery extends Query {
       )
     ].join('\n');
     if (usePast) {
-      pop(word: "GRID_QUERY_CLEAR_PAST");
+      moveBack(name: "GRID_QUERY_CLEAR_PAST");
     }
     return result;
   }

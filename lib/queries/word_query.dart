@@ -19,7 +19,7 @@ class WordQuery extends Query {
       if (!data.options.contains(word)) 
         '${(data.past.contains(word) 
           ? 'already been used'
-          : (stack.first.data.possible.contains(word)
+          : (dataTree.value.data.possible.contains(word)
             ? 'impossible due to a previous guess'
             : 'not an answer'
           )

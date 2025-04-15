@@ -1,38 +1,49 @@
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
+import 'package:wordle/utils.dart';
+
+enum NavMode {
+  Advance, Return, Delete
+}
 
 class StateQuery extends Query {
-  final String? word;
-  final int? count;
-  StateQuery({this.word, this.count}) {
-    if (word != null && count != null) {
-      throw QueryException("cannot pass both a word and a count to StateQuery");
-    }
-  }
+  NavMode? mode;
+  final String name;
+  StateQuery([this.name = "", this.mode]);
 
   void execute() {
-    pop(count: count, word: word);
+    switch (mode) {
+      case NavMode.Advance:
+        moveForward(name);
+      case NavMode.Return:
+        moveBack(name: name);
+      case NavMode.Delete:
+        prune(name);
+      case null:
+    }
   }
   
   @override
   String report() {
-    if (word == null && count == null) {
+    if (mode == null) {
       return [
-        "${stack.length - 1} state${stack.length - 1 == 1 ? "" : "s"} in history",
-        if (stack.length != 1) for (String line in [
-          "from least to most recent:",
-          stack.sublist(1).toString(),
-        ]) line
+        "${pathToHead.length} node${pathToHead.length == 1 ? "" : "s"} in path",
+        for (String line in [
+          if (pathToHead.length != 0) 
+            "from least to most recent:"
+          ,
+          for (int i = 0; i < pathToHead.length; i++)
+            navigate(dataTree, pathToHead.take(i).toList()).value.name
+          ,
+        ]) "  $line",
+        "${head.children.length} branch${head.children.length == 1 ? "" : "es"} forward",
+        for (Tree<TreeEntry> child in head.children) "  ${child.value.name}",
       ].join('\n');
-    } 
+    }
     else {
       execute();
       return [
-        "reverted state back ${
-          count != null 
-          ? "by $count steps"
-          : "to before $word"
-        }",
+        "reverted state back to before $name",
         "now ${data.options.length} options available",
       ].join('\n');
     }

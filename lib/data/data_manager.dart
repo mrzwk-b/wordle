@@ -1,40 +1,72 @@
 import 'package:wordle/data/data.dart';
+import 'package:wordle/utils.dart';
 
-class StackEntry {
+class DataException {
+  String message;
+  DataException(this.message);
+  @override String toString() => "DataException: $message";
+}
+
+class TreeEntry {
   final String name;
   final Data data;
-  StackEntry(this.name, this.data);
+  TreeEntry(this.name, this.data);
 
   @override
   String toString() => '"$name"';
 }
 
-final List<StackEntry> stack = [];
+late final Tree<TreeEntry> dataTree;
+List<int> pathToHead = [];
 
-Data get data => stack.last.data;
+Tree<TreeEntry> get head => navigate(dataTree, pathToHead);
+Data get data => head.value.data;
 
-void push(Data data, [String name = ""]) {
-  stack.add(StackEntry(name, data));
+Tree<TreeEntry> navigate<T>(final Tree<TreeEntry> tree, final List<T> path) =>
+  (path.isEmpty
+    ? tree
+    : (const <int>[] is T
+      ? navigate(tree.children[(path as List<int>).first], path.sublist(1))
+      : navigate(tree.children.firstWhere((entry) => entry.value.name == (path as List<String>).first), path)
+    )
+  )  
+;
+
+void branch(Data data, String name) {
+  if (head.children.any((tree) => tree.value.name == name)) {
+    throw DataException("cannot add duplicate name to children");
+  }
+  head.add(TreeEntry(name, data));
 }
 
-List<Data> pop({int? count, String? word}) {
-  if (word == null) {
-    List<Data> removed = stack
-      .sublist(stack.length - count!)
-      .map((entry) => entry.data)
-      .toList()
-    ;
-    stack.removeRange(stack.length - count, stack.length);
-    return removed;
+void prune(String name) {
+  int nameIndex = head.children.indexWhere((entry) => entry.value.name == name);
+  if (nameIndex == -1) {
+    throw DataException("cannot find child with name $name");
+  }
+  head.children.removeAt(nameIndex);
+}
+
+void moveBack({int? count, String? name}) {
+  if (name == null) {
+    pathToHead.removeRange(pathToHead.length - count!, pathToHead.length);
   }
   else {
-    int removalIndex = stack.indexWhere((entry) => entry.name == word);
-    List<Data> removed = stack
-      .sublist(removalIndex)
-      .map((entry) => entry.data)
-      .toList()
-    ;
-    stack.removeRange(removalIndex, stack.length);
-    return removed;
+    List<int> priorHead = pathToHead.toList();
+    while (pathToHead != [] && navigate(dataTree, pathToHead).value.name != name) {
+      pathToHead.removeLast();
+    }
+    if (pathToHead == []) {
+      pathToHead = priorHead;
+      throw DataException("cannot move back to nonexistent position $name");
+    }
   }
+}
+
+void moveForward(String name) {
+  int nameIndex = head.children.indexWhere((entry) => entry.value.name == name);
+  if (nameIndex == -1) {
+    throw DataException("cannot find child with name $name");
+  }
+  pathToHead.add(nameIndex);
 }

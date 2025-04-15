@@ -57,12 +57,30 @@ msg:
 - name: state
   abbr: s
   msg:
-  - shows history of guess queries or reverts them
-  - pass no arguments to see history
-  - pass either a number of guesses or a guessed word to revert
-  -
-    - if a word is passed, reverts to right before that word was guessed
-    - if a number is passed, removes that many entries
+  - manage query history and state of data based on queries
+  - name: empty
+    abbr: e
+    msg: 
+    - takes no arguments
+    - displays the list of branches taken to current position
+  - name: advance
+    abbr: '>'
+    msg:
+    - takes the name of a child branch followed by ">"
+    - moves to that state
+    - e.g., "s guess_bybbg >" to advance to the state with that name, assuming it's a child
+  - name: return
+    abbr: <
+    msg:
+    - takes the name of an ancestor node followed by ">"
+    - moves to that state
+    - e.g., "s guess_bybbg >" to return to the state with that name, assuming it's an ancestor
+  - name: delete
+    abbr: '-'
+    msg:
+    - takes the name of a child branch followed by ">"
+    - deletes that state
+    - e.g., "s guess_bybbg >" to delete the state with that name, assuming it's a child
 
 - name: restrict
   abbr: r
