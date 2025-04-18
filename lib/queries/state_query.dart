@@ -33,18 +33,22 @@ class StateQuery extends Query {
             "from least to most recent:"
           ,
           for (int i = 0; i < pathToHead.length; i++)
-            navigate(dataTree, pathToHead.take(i).toList()).value.name
+            "- ${navigate(dataTree, pathToHead.take(i).toList()).value.name}"
           ,
         ]) "  $line",
-        "${head.children.length} branch${head.children.length == 1 ? "" : "es"} forward",
-        for (Tree<TreeEntry> child in head.children) "  ${child.value.name}",
+        "${head.children.length} branch${head.children.length == 1 ? "" : "es"} forward:",
+        for (Tree<TreeEntry> child in head.children) "  - ${child.value.name}",
       ].join('\n');
     }
     else {
       execute();
       return [
-        "reverted state back to before $name",
-        "now ${data.options.length} options available",
+        "${switch (mode!) {
+          NavMode.Advance => "advanced to",
+          NavMode.Return => "returned to",
+          NavMode.Delete => "deleted"
+        }} $name",
+        if (mode != NavMode.Delete) "now ${data.options.length} options available",
       ].join('\n');
     }
   }

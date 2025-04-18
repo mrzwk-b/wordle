@@ -16,19 +16,8 @@ class Guess {
 class BotQuery extends Query {
   final String evaluator;
   final String answer;
-  BotQuery(this.evaluator, this.answer) {
-    // ensure that the state of [data] allows for [answer]
-    branch(Data(
-      data.possible.contains(answer)
-        ? data.possible
-        : data.possible.toSet()..add(answer)
-      ,
-      data.past.contains(answer)
-        ? (data.past.toSet()..remove(answer))
-        : data.past
-      ,
-    ), "BOT_QUERY_INIT");
-  }
+  final String init;
+  BotQuery(this.evaluator, this.answer): init = "${evaluator}_$answer";
 
   String guessResponse(final String guess) {
     List<String> response = List.filled(5, 'b');
@@ -50,6 +39,18 @@ class BotQuery extends Query {
 
   @override
   String report() {
+    // ensure that the state of [data] allows for [answer]
+    branch(Data(
+      data.possible.contains(answer)
+        ? data.possible
+        : data.possible.toSet()..add(answer)
+      ,
+      data.past.contains(answer)
+        ? (data.past.toSet()..remove(answer))
+        : data.past
+      ,
+    ), init);
+
     List<Guess> guesses = [];
     Random random = Random();
     try {
@@ -69,7 +70,7 @@ class BotQuery extends Query {
       }
     }
     finally {
-      moveBack(name: "BOT_QUERY_INIT");
+      moveBack(name: init);
     }
     
     return [

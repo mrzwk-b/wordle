@@ -25,18 +25,21 @@ Data get data => head.value.data;
 Tree<TreeEntry> navigate<T>(final Tree<TreeEntry> tree, final List<T> path) =>
   (path.isEmpty
     ? tree
-    : (const <int>[] is T
+    : (0 is T
       ? navigate(tree.children[(path as List<int>).first], path.sublist(1))
       : navigate(tree.children.firstWhere((entry) => entry.value.name == (path as List<String>).first), path)
     )
   )  
 ;
 
-void branch(Data data, String name) {
+void branch(Data data, String name, [bool advance = true]) {
   if (head.children.any((tree) => tree.value.name == name)) {
     throw DataException("cannot add duplicate name to children");
   }
   head.add(TreeEntry(name, data));
+  if (advance) {
+    moveForward(name);
+  }
 }
 
 void prune(String name) {
@@ -52,13 +55,17 @@ void moveBack({int? count, String? name}) {
     pathToHead.removeRange(pathToHead.length - count!, pathToHead.length);
   }
   else {
-    List<int> priorHead = pathToHead.toList();
-    while (pathToHead != [] && navigate(dataTree, pathToHead).value.name != name) {
-      pathToHead.removeLast();
-    }
-    if (pathToHead == []) {
-      pathToHead = priorHead;
-      throw DataException("cannot move back to nonexistent position $name");
+    final List<int> priorHead = pathToHead.toList();
+    String? lastRemoved;
+    while (!pathToHead.isEmpty && lastRemoved != name) {
+      try {
+        lastRemoved = head.value.name;
+        pathToHead.removeLast();
+      }
+      on RangeError catch (_) {
+        pathToHead = priorHead;
+        throw DataException("cannot move back to nonexistent position $name");
+      }
     }
   }
 }
