@@ -17,7 +17,7 @@ class BotQuery extends Query {
   final String evaluator;
   final String answer;
   final String init;
-  BotQuery(this.evaluator, this.answer): init = "${evaluator}_$answer";
+  BotQuery(this.evaluator, this.answer): init = "$evaluator $answer";
 
   String guessResponse(final String guess) {
     List<String> response = List.filled(5, 'b');

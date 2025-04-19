@@ -150,11 +150,14 @@ Query parse(final String input) {
       if (queryArgs.length == 1) {
         return StateQuery();
       }
-      else if (queryArgs.length != 3) {
-        throw QueryException("expected 2 arguments to StateQuery, received ${queryArgs.length - 1}");
+      else if (queryArgs.length == 2) {
+        if (queryArgs[1] != '#') {
+          throw QueryException('Root "#" is the only valid StateQuery with 1 argument');
+        }
+        return StateQuery(mode: NavMode.Root);
       }
       else {
-        return StateQuery(queryArgs[1], switch (queryArgs[2]) {
+        return StateQuery(name: queryArgs.sublist(2).join(' '), mode: switch (queryArgs[1]) {
           '<' => NavMode.Return,
           '>' => NavMode.Advance,
           '-' => NavMode.Delete,

@@ -16,6 +16,8 @@ msg:
   -
     - to see how a bot making guesses from the top of the positional evaluator
     - would play a game where "crest" was the answer
+  - puts game sequence into the tree
+  - e.g., "s > positional crest" to enter the game branch for the above example
 
 - name: grid
   abbr: g
@@ -66,21 +68,26 @@ msg:
   - name: advance
     abbr: '>'
     msg:
-    - takes the name of a child branch followed by ">"
+    - takes ">" followed by the name of a child branch
     - moves to that state
-    - e.g., "s guess_bybbg >" to advance to the state with that name, assuming it's a child
+    - e.g., "s > guess bybbg" to advance to the state with that name, assuming it's a child
   - name: return
     abbr: <
     msg:
-    - takes the name of an ancestor node followed by ">"
+    - takes ">" followed by the name of an ancestor node
     - moves to that state
-    - e.g., "s guess_bybbg >" to return to the state with that name, assuming it's an ancestor
+    - e.g., "s < guess bybbg" to return to the state with that name, assuming it's an ancestor
   - name: delete
     abbr: '-'
     msg:
-    - takes the name of a child branch followed by ">"
+    - takes "-" followed by the name of a child branch
     - deletes that state
-    - e.g., "s guess_bybbg >" to delete the state with that name, assuming it's a child
+    - e.g., "s - guess bybbg" to delete the state with that name, assuming it's a child
+  - name: root
+    abbr: '#'
+    msg:
+    - takes only the character "#"
+    - resets state to the root node
 
 - name: restrict
   abbr: r
@@ -103,6 +110,7 @@ msg:
       - '"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word'
       - '"g" (green) the letter guessed in that slot occurs in that slot in the target word'
     - e.g., "r think ybggb" would be a guess restriction in a game where the answer was "glint"
+  - puts new state into tree and advances into it
 
 - name: evaluator
   abbr: v

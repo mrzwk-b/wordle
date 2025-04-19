@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Tree<T> {
   final T value;
   final List<Tree<T>> children;
@@ -7,4 +9,9 @@ class Tree<T> {
   void add(T child) {
     children.add(Tree(child));
   }
+
+  int get height => (children.isEmpty)
+    ? 1
+    : children.map((child) => child.height).reduce((a, b) => max(a, b))
+  ;
 }

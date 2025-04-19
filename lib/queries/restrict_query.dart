@@ -11,7 +11,7 @@ class RestrictQuery extends Query {
   final bool negate;
 
   RestrictQuery(this.pattern, {this.include = const {}, this.exclude = const {}, this.negate = false}) {
-    Iterable<RegExpMatch> matches = RegExp('[^a-z${
+    Iterable<RegExpMatch> matches = RegExp('[^a-z0-9${
       (specialCharacters.toSet()..remove('?')).join()
     }]').allMatches(pattern);
     if (matches.length != 0) {
@@ -52,9 +52,9 @@ class RestrictQuery extends Query {
         data.past
       ),
       "$pattern"
-      "${include.isEmpty ? "" : "_+${include.entries.map((entry) => entry.key * entry.value).join()}"}"
-      "${exclude.isEmpty ? "" : "_-${exclude.join()}"}"
-      "${!negate ? "" : "_!"}"
+      "${include.isEmpty ? "" : " +${include.entries.map((entry) => entry.key * entry.value).join()}"}"
+      "${exclude.isEmpty ? "" : " -${exclude.join()}"}"
+      "${!negate ? "" : " !"}"
     );
     return "update complete, now ${data.options.length} possible words";
   }

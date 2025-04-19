@@ -42,12 +42,21 @@ void branch(Data data, String name, [bool advance = true]) {
   }
 }
 
-void prune(String name) {
-  int nameIndex = head.children.indexWhere((entry) => entry.value.name == name);
-  if (nameIndex == -1) {
-    throw DataException("cannot find child with name $name");
+void prune([String? name]) {
+  if (name == null) {
+    head.children.removeAt(0);
   }
-  head.children.removeAt(nameIndex);
+  else {
+    int nameIndex = head.children.indexWhere((entry) => entry.value.name == name);
+    if (nameIndex == -1) {
+      throw DataException("cannot find child with name $name");
+    }
+    head.children.removeAt(nameIndex);  
+  }
+}
+
+void root() {
+  pathToHead = [];
 }
 
 void moveBack({int? count, String? name}) {

@@ -80,7 +80,7 @@ class GuessQuery extends Query {
       }
     }
     Set<String> possible = reflectChange(blank: blank, yellow: yellow, green: green);
-    branch(Data(possible, data.past), "${word}_$result");
+    branch(Data(possible, data.past), "$word $result");
   }
 
   @override

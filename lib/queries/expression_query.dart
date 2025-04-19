@@ -196,8 +196,10 @@ class ExpressionQuery extends Query {
     options = data.options.difference(illegal);
   }
 
+  /// negates a bool if this expression is negated
   bool getNegation(bool value) => negate ? !value : value;
 
+  /// get all words that match this expression
   Iterable<String> executeFixed() => 
     options.where((word) => getNegation(isWordMatch(word, pattern)))
   ;

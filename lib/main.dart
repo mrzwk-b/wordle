@@ -34,7 +34,7 @@ void main(List<String> argStrs) async {
     }),
   ]) {await assignment;}
   
-  dataTree = Tree(TreeEntry('root', Data(possible, past)));
+  dataTree = Tree(TreeEntry('', Data(possible, past)));
 
   while (true) {
     print("enter a query (h for help):");

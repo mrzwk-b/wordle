@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:wordle/data/data.dart';
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/guess_query.dart';
@@ -87,6 +89,7 @@ class GridQuery extends Query {
           possibilities.add(Tree(guess, pathsFromGuess));
         }
         moveBack(count: 1);
+        prune();
       }
     }
     return (possibilities.length == 0)
@@ -96,22 +99,45 @@ class GridQuery extends Query {
   }
 
   /// generates a list of lines for displaying the contents of `tree`
-  List<String> displayTree(Tree<String> tree) => [
+  List<String> treeAsLines(Tree<String> tree) => [
     "${tree.value}",
     for (Tree<String> child in tree.children)
-      for (String line in displayTree(child))
+      for (String line in treeAsLines(child))
         "| $line"
+  ];
+
+  /// generates a list of the set of words that match the response given at each guess
+  List<Set<String>> orderedGuessOptions(List<Tree<String>> trees) => [
+    if (trees.isNotEmpty) {for (Tree<String> tree in trees) tree.value},
+    for (Set<String> guesses in (trees.isEmpty
+      ? []
+      : (trees
+        .map((tree) => orderedGuessOptions(tree.children))
+        .reduce((a, b) => [for (int i = 0; i < max(a.length, b.length); i++)
+          (i < a.length && i < b.length
+            ? a[i].union(b[i])
+            : (i < a.length
+              ? a[i]
+              : b[i]
+            )
+          )
+        ])
+      )
+    )) guesses
   ];
 
   @override
   String report() {
+    List<Set<String>> orderedGuesses = orderedGuessOptions(explorePossibilities(responses) ?? []);
     String result = [
-      for (Tree<String> tree in explorePossibilities(responses) ?? []) (
-        displayTree(tree).join('\n')
-      )
+      for (int i = 0; i < orderedGuesses.length; i++) [
+        "guess ${i+1}:",
+        for (String guess in orderedGuesses[i]) "- $guess"
+      ].join('\n')
     ].join('\n');
     if (usePast) {
       moveBack(name: "GRID_QUERY_CLEAR_PAST");
+      prune("GRID_QUERY_CLEAR_PAST");
     }
     return result;
   }
