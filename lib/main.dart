@@ -4,7 +4,7 @@ import 'package:args/args.dart';
 import 'package:wordle/data/data.dart';
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/data/scrape.dart';
-import 'package:wordle/queries/parse.dart';
+import 'package:wordle/parse.dart';
 import 'package:wordle/queries/query.dart';
 import 'package:wordle/utils.dart';
 
