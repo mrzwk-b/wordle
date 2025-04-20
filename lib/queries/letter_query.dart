@@ -41,17 +41,21 @@ class LetterQuery extends Query {
           "total: ${data.frequencyDistributions[letter]!.total}, "
           "${data.frequencyRankings.indexOf(letter!) + 1} / 26",
 
-          "preceding: {\n${[
-            for (Set<String?> antecedentTier in data.contextualDistributions[letter]!.preceding.reversed) "  { ${
-              [for (String? antecedent in antecedentTier) "${antecedent ?? '#'}"].join(', ')
-            } }"
-          ].join(",\n")}\n}",
+          "preceding:",
+          for (String line in [
+            for (Set<String?> antecedentTier in data.contextualDistributions[letter]!.preceding.reversed) 
+              "{ ${[for (String? antecedent in antecedentTier) "${antecedent ?? '#'}"].join(', ')} }: "
+              "${data.contextualDistributions[letter]!.precedingCounts[antecedentTier.first]}"
+            ,
+          ]) "  $line",
 
-          "following: {\n${[
-            for (Set<String?> sequentTier in data.contextualDistributions[letter]!.following.reversed) "  { ${
-              [for (String? sequent in sequentTier) "${sequent ?? '#'}"].join(', ')
-            } }"
-          ].join(",\n")}\n}"
+          "following:",
+          for (String line in [
+            for (Set<String?> sequentTier in data.contextualDistributions[letter]!.following.reversed) 
+              "{ ${[for (String? sequent in sequentTier) "${sequent ?? '#'}"].join(', ')} }: "
+              "${data.contextualDistributions[letter]!.followingCounts[sequentTier.first]}"
+            ,
+          ]) "  $line",
         ].join('\n');
     }
   }

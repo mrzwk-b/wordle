@@ -4,8 +4,8 @@ final Set<String> alphabet = "abcdefghijklmnopqrstuvwxyz".split("").toSet();
 
 class FrequencyDistribution {
   int total;
-  List<int> positionCounts;
-  FrequencyDistribution(this.positionCounts): total = positionCounts.reduce((a,b)=>a+b);
+  final List<int> positionCounts;
+  FrequencyDistribution(this.positionCounts): total = positionCounts.reduce((a, b) => a + b);
   void add(int index, [int amount = 1]) {
     positionCounts[index] += amount;
     total += amount;
@@ -29,9 +29,14 @@ Map<String, FrequencyDistribution> getFrequencyDistributions(Iterable<String> wo
 /// 
 /// the `null` item in each list indicates a word boundary
 class ContextualDistribution {
-  List<Set<String?>> preceding;
-  List<Set<String?>> following;
-  ContextualDistribution(this.preceding, this.following);
+  final Map<String?, int> precedingCounts;
+  final Map<String?, int> followingCounts;
+  final List<Set<String?>> preceding;
+  final List<Set<String?>> following;
+  ContextualDistribution(this.precedingCounts, this.followingCounts):
+    preceding = rankWithTies(precedingCounts, (a, b) => a - b),
+    following = rankWithTies(followingCounts, (a, b) => a - b)
+  ;
 }
 
 Map<String, ContextualDistribution> getContextualDistributions(Iterable<String> words) {
@@ -66,9 +71,8 @@ Map<String, ContextualDistribution> getContextualDistributions(Iterable<String> 
     }
   }
   return {
-    for (final String letter in alphabet) letter: ContextualDistribution(
-      rankWithTies(antecedents[letter]!, (a, b) => a - b),
-      rankWithTies(sequents[letter]!, (a, b) => a - b)
-    )
+    for (final String letter in alphabet) 
+      letter: ContextualDistribution(antecedents[letter]!, sequents[letter]!)
+    ,
   };
 }
