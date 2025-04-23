@@ -55,45 +55,49 @@ const Set<String> consonants = {'b','c','d','f','g','h','j','k','l','m','n','p',
 }
 
 bool isWordMatch(final String word, final String pattern) {
-  // loop through the whole word
-  wordLoop:
+  wordLoop: // try to match starting from each letter of the word
   for (int wordStart = 0; wordStart < 5; wordStart++) {
-    // start trying to match the pattern from where we are in the word
     int wordIndex = wordStart;
     bool matching = true;
     List<String?> numbereds = List.filled(5, null);
+    // start going through the pattern
     for (int patternIndex = 0; patternIndex < pattern.length;) {
       if (pattern[patternIndex] == '#') {
-        matching = wordIndex == 0 || wordIndex == 5;
+        matching = 
+          (wordIndex == 0 && patternIndex == 0) ||
+          (wordIndex == 5 && patternIndex == pattern.length - 1)
+        ;
         patternIndex += 1;
       }
       else if (wordIndex < 5) {
         int matchLength;
-        int tokenSize= (
+        int tokenSize = (
           patternIndex < pattern.length - 1 && 
           quantifiers.contains(pattern[patternIndex + 1])
         ) ? 2 : 1;
+        String token = pattern.substring(patternIndex + 1, patternIndex + tokenSize);
+
         switch (pattern[patternIndex]) {
           case '@': {
             (matching, matchLength) = quantifyMatch(
               word.substring(wordIndex).split("").indexWhere((letter) => !vowels.contains(letter)),
-              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+              token
             );
           }
           case r'$': {
             (matching, matchLength) = quantifyMatch(
               word.substring(wordIndex).split("").indexWhere((letter) => !consonants.contains(letter)),
-              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+              token
+            );
+          }
+          case '_': {
+            (matching, matchLength) = quantifyMatch(
+              word.substring(wordIndex).length,
+              token
             );
           }
           case '?': {
             throw QueryException('"?" cannot occur in fixed expression query');
-          }
-          case '_': {
-            (matching, matchLength) = quantifyMatch(
-              word.substring(wordIndex).length - 1,
-              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
-            );
           }
           case String token when int.tryParse(token) != null: {
             int num = int.parse(token) - 1;
@@ -106,14 +110,14 @@ bool isWordMatch(final String word, final String pattern) {
               }
               (matching, matchLength) = quantifyMatch(
                 word.substring(wordIndex).split("").indexWhere((letter) => letter != numbereds[num]),
-                pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+                token
               );
             }
           }
           default: {
             (matching, matchLength) = quantifyMatch(
               word.substring(wordIndex).split("").indexWhere((letter) => letter != pattern[patternIndex]),
-              pattern.substring(patternIndex + 1, patternIndex + tokenSize)
+              token
             );
           }
         }
