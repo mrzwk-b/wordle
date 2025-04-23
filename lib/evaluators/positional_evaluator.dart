@@ -1,7 +1,7 @@
 import 'package:wordle/data/distribution.dart';
 import 'package:wordle/evaluators/evaluator.dart';
 
-class PositionalEvaluator implements Evaluator {
+class PositionalEvaluator extends Evaluator {
   final Map<String, List<int>> rankings;
   
   @override
@@ -31,19 +31,5 @@ class PositionalEvaluator implements Evaluator {
   int compare(int a, int b) => b - a;
 
   @override
-  int evaluate(final String word) {
-    final Map<String, int> letterValues = {};
-    for (int i = 0; i < 5; i++) {
-      letterValues.update(word[i],
-        (oldValue) => 
-          (rankings[word[i]]![i] > oldValue
-            ? rankings[word[i]]![i]
-            : oldValue
-          )
-        ,
-        ifAbsent: () => rankings[word[i]]![i]
-      );
-    }
-    return letterValues.values.reduce((a,b)=>a+b);
-  }
+  int evaluateLetter(String word, int index) => rankings[word[index]]![index];
 }

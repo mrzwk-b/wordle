@@ -5,7 +5,7 @@ enum LetterLocation {
   There, Elsewhere, Nowhere
 }
 
-class BalancingEvaluator implements Evaluator {
+class BalancingEvaluator extends Evaluator {
   late final Map<String, List<Map<LetterLocation, int>>> distribution;
   final int optionsCount;
   BalancingEvaluator(final Map<String, FrequencyDistribution> freqDist, this.optionsCount) {
@@ -23,7 +23,8 @@ class BalancingEvaluator implements Evaluator {
   @override
   int compare(int a, int b) => a - b;
 
-  int evaluateLetter(final String letter, final int index) {
+  int evaluateLetter(final String word, final int index) {
+    final String letter = word[index];
     final int there = distribution[letter]![index][LetterLocation.There]!;
     final int elsewhere = distribution[letter]![index][LetterLocation.Elsewhere]!;
     final int nowhere = distribution[letter]![index][LetterLocation.Nowhere]!;
@@ -35,26 +36,9 @@ class BalancingEvaluator implements Evaluator {
   }
 
   @override
-  int evaluate(String word) {
-    Set<String> seen = {};
-    int total = 0;
-    for (int i = 0; i< 5; i++) {
-      total += evaluateLetter(word[i], i);
-      if (seen.contains(word[i])) {
-        total *= 2;
-      }
-      else {
-        seen.add(word[i]);
-      }
-    }
-    return total;
-  }
-
-  @override
   int get worstValue => 
     optionsCount * 2 // maximum sum of differences
     * 5 // for each slot in the word
     * 32 // doubled for each slot in the word
   ;
-  
 }
