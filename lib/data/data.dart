@@ -10,33 +10,43 @@ class Data {
   final Set<String> past;
   final Set<String> options;
 
-  late final Map<String, FrequencyDistribution> frequencyDistributions;
-  late final List<String> frequencyRankings;
-  late final Map<String, ContextualDistribution> contextualDistributions;
+  Map<String, FrequencyDistribution>? _frequencyDistributions;
+  Map<String, FrequencyDistribution> get frequencyDistributions {
+    _frequencyDistributions ??= getFrequencyDistributions(options);
+    return _frequencyDistributions!;
+  }
 
-  late final Map<String, Evaluator> evaluators;
-  late final Map<String, Map<String, int>> evaluations;
-  /// kept in decreasing order
-  late final Map<String, List<String>> rankings;
-
-  Data(this.possible, this.past):
-    options = possible.difference(past)
-  {
-    frequencyDistributions = getFrequencyDistributions(options);
-    frequencyRankings = rank(
+  List<String>? _frequencyRankings;
+  List<String> get frequencyRankings {
+    _frequencyRankings ??= rank(
       frequencyDistributions.map(
         (letter, distribution) => MapEntry(letter, distribution.total),
       ),
       (a, b) => b - a
     );
-    contextualDistributions = getContextualDistributions(options);
-    evaluators = {
+    return _frequencyRankings!;
+  }
+
+  Map<String, ContextualDistribution>? _contextualDistributions;
+  Map<String, ContextualDistribution> get contextualDistributions {
+    _contextualDistributions ??= getContextualDistributions(options);
+    return _contextualDistributions!;
+  }
+
+  Map<String, Evaluator>? _evaluators;
+  Map<String, Evaluator> get evaluators {
+    _evaluators ??= {
       "positionless": PositionlessEvaluator(frequencyDistributions),
       "positional": PositionalEvaluator(frequencyDistributions),
       "contextual": ContextualEvaluator(contextualDistributions),
       "balancing": BalancingEvaluator(frequencyDistributions, options.length),
     };
-    evaluations = 
+    return _evaluators!;
+  }
+
+  Map<String, Map<String, int>>? _evaluations;
+  Map<String, Map<String, int>> get evaluations {
+    _evaluations ??=
       Map.fromEntries(evaluators.entries.map((entry) => 
         MapEntry(
           entry.key,
@@ -47,7 +57,13 @@ class Data {
         )
       ))
     ;
-    rankings = 
+    return _evaluations!;
+  }
+
+  Map<String, List<String>>? _rankings;
+  /// kept in best to worst order
+  Map<String, List<String>> get rankings {
+    _rankings ??=
       Map.fromEntries(evaluations.entries.map((entry) => 
         MapEntry(
           entry.key,
@@ -55,7 +71,10 @@ class Data {
         )
       ));
     ;
+    return _rankings!;
   }
+
+  Data(this.possible, this.past): options = possible.difference(past);
 
   String evaluationReport(String evaluatorName, String word) => 
     (options.contains(word)
