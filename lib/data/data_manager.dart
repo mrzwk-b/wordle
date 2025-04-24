@@ -1,5 +1,5 @@
 import 'package:wordle/data/data.dart';
-import 'package:wordle/utils.dart';
+import 'package:wordle/utils/tree.dart';
 
 class DataException {
   String message;

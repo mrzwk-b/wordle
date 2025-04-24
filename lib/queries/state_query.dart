@@ -1,6 +1,6 @@
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
-import 'package:wordle/utils.dart';
+import 'package:wordle/utils/tree.dart';
 
 enum NavMode {
   Advance, Return, Delete, Root

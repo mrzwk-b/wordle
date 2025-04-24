@@ -6,7 +6,7 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/data/scrape.dart';
 import 'package:wordle/parse.dart';
 import 'package:wordle/queries/query.dart';
-import 'package:wordle/utils.dart';
+import 'package:wordle/utils/tree.dart';
 
 Future<Set<String>> tryUntilSuccess(Future<Set<String>> Function() scrape) async {
   while (true) {
