@@ -6,7 +6,14 @@ class EvaluatorRankQuery extends Query {
   final int count;
   final int offset;
   final bool decreasing;
-  EvaluatorRankQuery(this.evaluatorName, this.count, {this.offset = 0, this.decreasing = true}) {
+  final int vowelTolerance;
+  EvaluatorRankQuery(
+    this.evaluatorName,
+    this.count, {
+    this.offset = 0,
+    this.decreasing = true,
+    this.vowelTolerance = 5
+  }) {
     if (!data.evaluators.keys.contains(evaluatorName)) {
       throw QueryException('EvaluatorRankQuery requires name of valid evaluator, received "$evaluatorName"');
     }
@@ -21,12 +28,15 @@ class EvaluatorRankQuery extends Query {
         'EvaluatorRankQuery cannot return $count results from ${data.options.length - offset} options'
       );
     }
+    if (vowelTolerance > 5) {
+      throw QueryException("vowel tolerance cannot be greater than 5, was $vowelTolerance");
+    }
   }
 
   Iterable<String> execute() => 
     ((final List<String> list) => 
       decreasing ? list : list.reversed
-    )(data.rankings[evaluatorName]!).toList().sublist(offset).take(count)
+    )(data.rankings[evaluatorName]![vowelTolerance]).toList().sublist(offset).take(count)
   ;
 
   @override

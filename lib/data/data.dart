@@ -4,6 +4,7 @@ import 'package:wordle/evaluators/contextual_evaluator.dart';
 import 'package:wordle/evaluators/evaluator.dart';
 import 'package:wordle/evaluators/positional_evaluator.dart';
 import 'package:wordle/evaluators/positionless_evaluator.dart';
+import 'package:wordle/utils/lazy_list.dart';
 import 'package:wordle/utils/lazy_map.dart';
 
 class Data {
@@ -49,35 +50,41 @@ class Data {
     return _evaluators!;
   }
 
-  Map<String, Map<String, int>>? _evaluations;
-  Map<String, Map<String, int>> get evaluations {
+  Map<String, List<Map<String, int>>>? _evaluations;
+  Map<String, List<Map<String, int>>> get evaluations {
     _evaluations ??= LazyMap(
       evaluators.keys.toSet(),
-      (name) => LazyMap(
-        options,
-        (word) => evaluators[name]!.evaluate(word)
+      (name) => LazyList(
+        6,
+        (i) => LazyMap(
+          options,
+          (word) => evaluators[name]!.evaluate(word, i)
+        )
       )
     );
     return _evaluations!;
   }
 
-  Map<String, List<String>>? _rankings;
+  Map<String, List<List<String>>>? _rankings;
   /// kept in best to worst order
-  Map<String, List<String>> get rankings {
+  Map<String, List<List<String>>> get rankings {
     _rankings ??= LazyMap(
       evaluators.keys.toSet(),
-      (name) => rank(evaluations[name]!, (a, b) => evaluators[name]!.compare(a, b))
+      (name) => LazyList(
+        6,
+        (i) => rank(evaluations[name]![i], (a, b) => evaluators[name]!.compare(a, b))
+      )
     );
     return _rankings!;
   }
 
   Data(this.possible, this.past): options = possible.difference(past);
 
-  String evaluationReport(String evaluatorName, String word) => 
+  String evaluationReport(String evaluatorName, String word, [int vowelTolerance = 5]) => 
     (options.contains(word)
       ? (
-        '${evaluations[evaluatorName]![word]} pts, '
-        '${rankings[evaluatorName]!.indexOf(word) + 1} / ${options.length}'
+        '${evaluations[evaluatorName]![vowelTolerance][word]} pts, '
+        '${rankings[evaluatorName]![vowelTolerance].indexOf(word) + 1} / ${options.length}'
       )
       : ( 
         '${evaluators[evaluatorName]!.evaluate(word)} pts'   

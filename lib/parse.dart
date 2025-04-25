@@ -80,6 +80,20 @@ Expression parseExpression(final List<String> args) {
   );
 }
 
+int parseVowelTolerance(String arg) {
+  if (!arg.startsWith('@')) {
+    throw QueryException('${arg[0]} is invalid start to vowel tolerance argument');
+  }
+  int? tolerance = int.tryParse(arg.substring(1));
+  if (tolerance == null) {
+    throw QueryException('${arg.substring(1)} cannot be parsed as integer vowel tolerance');
+  }
+  if (tolerance < 0 || tolerance > 5) {
+    throw QueryException('$tolerance is not a valid vowel tolerance value');
+  }
+  return tolerance;
+}
+
 Query parse(final String input) {
   final List<String> queryArgs = input.split(" ");
   switch (queryArgs[0]) {
@@ -166,116 +180,67 @@ Query parse(final String input) {
       }
     }
     case 'v': {
-      if (queryArgs.length < 3 || queryArgs.length > 5) {
-        throw QueryException("expected 2-4 arguments for evaluator query, found ${queryArgs.length - 1}");
+      if (queryArgs.length < 3 || queryArgs.length > 6) {
+        throw QueryException("expected 2-5 arguments for evaluator query, found ${queryArgs.length - 1}");
       }
 
       // range query
       if (queryArgs[2].contains(':')) {
-        String range = queryArgs[2];
-        // no limit
-        if (range.length == 1) {
-          return EvaluatorRangeQuery(queryArgs[1], Range());
+        if (queryArgs.length > 4) {
+          throw QueryException(
+            'only vowel tolerance may be passed after range to evaluator query, found ${queryArgs.sublist(4)}'
+          );
         }
-        // 1 limit on both sides
-        else if (range.startsWith(':') && range.endsWith(':')) {
-          String word = range.substring(1, range.length - 1);
-          int? score = int.tryParse(word);
-          if (score == null) {
-            if (!isValidWord(word)) {
-              throw QueryException('expected 5 letter alphabetic word as limit, found "$word"');
+
+        List<String> wordBounds = queryArgs[2].split(':');
+        if (wordBounds.length != 2) {
+          if (wordBounds.length != 3) {
+            throw QueryException(
+              'range argument must contain exactly 1 or 2 colons ":", found ${wordBounds.length - 1}'
+            );
+          }
+          if (wordBounds[0] != "") {
+            throw QueryException(
+              '2 colons must completely surround word or value, found ${wordBounds[0]} before'
+            );
+          }
+          if (wordBounds[2] != "") {
+            throw QueryException(
+              '2 colons must completely surround word or value, found ${wordBounds[2]} before'
+            );
+          }
+          wordBounds = [wordBounds[1], wordBounds[1]];
+        }
+
+        List<int?> scoreBounds = List.filled(2, null);
+        for (int i = 0; i < 2; i ++) {
+          scoreBounds[i] = int.tryParse(wordBounds[i]);
+          if (scoreBounds[i] == null) {
+            if (!isValidWord(wordBounds[i])) {
+              throw QueryException('expected 5 letter alphabetic word as limit, found "${wordBounds[i]}"');
             }
           }
           else {
-            if (score < 0) {
-              throw QueryException('expected nonnegative score limit, found $score');
+            if (scoreBounds[i]! < 0) {
+              throw QueryException('expected nonnegative score limit, found ${scoreBounds[i]}');
             }
-          }
-          return EvaluatorRangeQuery(queryArgs[1], Range(
-            worstWord: score == null ? word : null,
-            worstScore: score,
-            bestWord: score == null ? word : null,
-            bestScore: score
-          ));
-        }
-        // high limit only
-        else if (range.startsWith(':')) {
-          String highWord = range.substring(1);
-          int? highScore = int.tryParse(highWord);
-          // word limit
-          if (highScore == null) {
-            if (!isValidWord(highWord)) {
-              throw QueryException('expected 5 letter alphabetic word as limit, found "$highWord"');
-            }
-            return EvaluatorRangeQuery(queryArgs[1], Range(bestWord: highWord));
-          }
-          // score limit
-          else {
-            if (highScore < 0) {
-              throw QueryException("expected nonnegative score limit, found $highScore");
-            }
-            return EvaluatorRangeQuery(queryArgs[1], Range(bestScore: highScore));
           }
         }
-        // low limit only
-        else if (range.endsWith(':')) {
-          String lowWord = range.substring(0, range.length - 1);
-          int? lowScore = int.tryParse(lowWord);
-          // word limit
-          if (lowScore == null) {
-            if (!isValidWord(lowWord)) {
-              throw QueryException('expected 5 letter alphabetic word as limit, found "$lowWord"');
-            }
-            return EvaluatorRangeQuery(queryArgs[1], Range(worstWord: lowWord));
-          }
-          // score limit
-          else {
-            if (lowScore < 0) {
-              throw QueryException("expected nonnegative score limit, found $lowScore");
-            }
-            return EvaluatorRangeQuery(queryArgs[1], Range(worstScore: lowScore));
-          }
-        }
-        // both limits
-        else {
-          List<String> wordLimits = range.split(':');
-          if (wordLimits.length != 2) {
-            throw QueryException("expected 2 limits, received ${wordLimits.length}");
-          }
-          String lowWord = wordLimits[0];
-          String highWord = wordLimits[1];
-          int? lowScore = int.tryParse(lowWord);
-          if (lowScore == null) {
-            if (!isValidWord(lowWord)) {
-              throw QueryException('expected 5 letter alphabetic word as limit, found "$lowWord"');
-            }
-          }
-          else {
-            if (lowScore < 0) {
-              throw QueryException("expected nonnegative score limit, found $lowScore");
-            }
-          }
-          int? highScore = int.tryParse(highWord);
-          if (highScore == null) {
-            if (!isValidWord(highWord)) {
-              throw QueryException('expected 5 letter alphabetic word as limit, found "$highWord"');
-            }
-          }
-          else {
-            if (highScore < 0) {
-              throw QueryException("expected nonnegative score limit, found $highScore");
-            }
-          }
-          return EvaluatorRangeQuery(queryArgs[1], Range(
-            worstWord: lowScore == null ? lowWord : null,
-            worstScore: lowScore,
-            bestWord: highScore == null ? highWord : null,
-            bestScore: highScore
-          ));
-        }
+
+        return EvaluatorRangeQuery(
+          queryArgs[1],
+          Range(
+            worstWord: wordBounds[0] == "" ? null : wordBounds[0],
+            worstScore: scoreBounds[0],
+            bestWord: wordBounds[1] == "" ? null : wordBounds[1],
+            bestScore: scoreBounds[1],
+          ),
+          queryArgs.length == 4 ? parseVowelTolerance(queryArgs[3]) : 5
+        );
       }
+
       // rank query
-      else {  
+      else {
         int count;
         try {
           count = int.parse(queryArgs[2]);

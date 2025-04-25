@@ -2,8 +2,8 @@ import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/queries/query.dart';
 
 class Range {
-  String? worstWord;
-  String? bestWord;
+  final String? worstWord;
+  final String? bestWord;
   int? worstScore;
   int? bestScore;
   Range({this.worstScore, this.worstWord, this.bestScore, this.bestWord}) {
@@ -17,17 +17,21 @@ class Range {
 }
 
 class EvaluatorRangeQuery extends Query {
-  String evaluatorName;
-  Range range;
-  EvaluatorRangeQuery(this.evaluatorName, this.range) {
+  final String evaluatorName;
+  final Range range;
+  final int vowelTolerance;
+  EvaluatorRangeQuery(this.evaluatorName, this.range, [this.vowelTolerance = 5]) {
     if (!data.evaluators.keys.contains(evaluatorName)) {
       throw QueryException('EvaluatorRangeQuery requires name of valid evaluator, received "$evaluatorName"');
+    }
+    if (vowelTolerance > 5) {
+      throw QueryException("vowel tolerance cannot be greater than 5, was $vowelTolerance");
     }
   }
 
   Iterable<String> execute() {
-    Map<String, int> wordEvaluations = data.evaluations[evaluatorName]!;
-    List<String> wordRankings = data.rankings[evaluatorName]!;
+    Map<String, int> wordEvaluations = data.evaluations[evaluatorName]![vowelTolerance];
+    List<String> wordRankings = data.rankings[evaluatorName]![vowelTolerance];
     int start = 0;
     int end = wordRankings.length;
     // find end index in rankings

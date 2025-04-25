@@ -8,12 +8,10 @@ class PositionlessEvaluator extends Evaluator {
   final Map<String, int> rankings;
   PositionlessEvaluator(Map<String, FrequencyDistribution> distribution):
     rankings = (() {
-      final Map<String, int> letterTotals = distribution.map((key, value) => MapEntry(key, value.total),);
-      final List<int> sortedTotals = letterTotals.values.toList()..sort();
-      return Map<String, int>.fromIterable(alphabet,
-        key: (letter) => letter,
-        value: (letter) => sortedTotals.indexOf(letterTotals[letter]!),
-      );
+      final Map<String, int> letterTotals = distribution.map((key, value) => MapEntry(key, value.total));
+      return {for (String letter in alphabet) 
+        letter: (letterTotals.values.toList()..sort()).indexOf(letterTotals[letter]!)
+      };
     })()
   ;
 
