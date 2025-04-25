@@ -5,8 +5,8 @@ import 'package:wordle/data/data.dart';
 import 'package:wordle/data/data_manager.dart';
 import 'package:wordle/data/scrape.dart';
 import 'package:wordle/parse.dart';
-import 'package:wordle/queries/query.dart';
 import 'package:wordle/utils/tree.dart';
+import 'package:wordle/utils/wordle_exception.dart';
 
 Future<Set<String>> tryUntilSuccess(Future<Set<String>> Function() scrape) async {
   while (true) {
@@ -41,7 +41,7 @@ void main(List<String> argStrs) async {
     try {
       print(parse(stdin.readLineSync() ?? "").report());
     }
-    on QueryException catch (e) {
+    on WordleException catch (e) {
       print(e);
     }
     print("");

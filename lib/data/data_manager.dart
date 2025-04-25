@@ -1,7 +1,8 @@
 import 'package:wordle/data/data.dart';
 import 'package:wordle/utils/tree.dart';
+import 'package:wordle/utils/wordle_exception.dart';
 
-class DataException {
+class DataException extends WordleException {
   String message;
   DataException(this.message);
   @override String toString() => "DataException: $message";

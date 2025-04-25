@@ -6,35 +6,6 @@ import 'package:wordle/evaluators/positional_evaluator.dart';
 import 'package:wordle/evaluators/positionless_evaluator.dart';
 import 'package:wordle/utils/lazy_map.dart';
 
-class EvaluatorMap {
-  static final Map<String, Evaluator Function(Data)> evaluatorConstructors = {
-    "positionless": (data) => PositionlessEvaluator(data.frequencyDistributions),
-    "positional": (data) => PositionalEvaluator(data.frequencyDistributions),
-    "contextual": (data) => ContextualEvaluator(data.contextualDistributions),
-    "balancing": (data) => BalancingEvaluator(data.frequencyDistributions, data.options.length),
-  };
-  Map<String, Evaluator> evaluators = {};
-  Data data;
-  EvaluatorMap(this.data);
-
-  Iterable<String> get keys => evaluatorConstructors.keys;
-  /// requires name to be a valid evaluator name
-  Evaluator operator [](String name) {
-    if (!evaluators.containsKey(name)) {
-      evaluators[name] = evaluatorConstructors[name]!(data);
-    }
-    return evaluators[name]!;
-  }
-}
-
-class EvaluationsList {
-
-}
-
-class EvaluationsMap {
-
-}
-
 class Data {
   final Set<String> possible;
   final Set<String> past;

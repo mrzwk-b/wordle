@@ -1,0 +1,1 @@
+class WordleException implements Exception {}
