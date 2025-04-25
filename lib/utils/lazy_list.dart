@@ -2,35 +2,56 @@ import 'dart:math';
 
 import 'package:wordle/utils/lazy_map.dart';
 
+class LazyListIterator<E> implements Iterator<E> {
+  final LazyList<E> lazyList;
+  int index;
+  LazyListIterator(this.lazyList, [start = 0]): this.index = start;
+
+  @override
+  E get current => lazyList[index];
+
+  @override
+  bool moveNext() {
+    if (index >= lazyList.length) {
+      return false;
+    }
+
+    index += 1;
+    return true;
+  }
+
+}
+
 /// doesn't work with nullable types
-class LazyList<T> implements List<T> {
-  final T Function(int) _constructor;
+class LazyList<E> implements List<E> {
   final int length;
-  final List<T?> _established;
-  LazyList(this.length, this._constructor): 
+  final E Function(int) _constructor;
+  final List<E?> _established;
+  LazyList(this.length, constructor):
+    _constructor = constructor,
     _established = List.filled(length, null)
   ;
 
   // read
   @override
-  T operator [](int index) {
+  E operator [](int index) {
     if (_established[index] == null) {
       _established[index] = _constructor(index);
     }
     return _established[index]!;
   }
   @override
-  T elementAt(int index) => this[index];
+  E elementAt(int index) => this[index];
   @override
-  T get first => this[0];
+  E get first => this[0];
   @override
-  void set first(T value) {
+  void set first(E value) {
     this[0] = value;
   }
   @override
-  T get last => this[length - 1];
+  E get last => this[length - 1];
   @override
-  void set last(T value) {
+  void set last(E value) {
     this[length - 1] = value;
   }
   @override
@@ -38,15 +59,15 @@ class LazyList<T> implements List<T> {
   @override
   bool get isNotEmpty => length != 0;
   @override
-  T get single {
+  E get single {
     if (this.length != 1) {
       throw StateError("single requires length of 1, found $length");
     }
     return this[0];
   }
   @override
-  T singleWhere(bool Function(T element) test, {T Function()? orElse}) {
-    Iterable<T> satisfying = where(test);
+  E singleWhere(bool Function(E element) test, {E Function()? orElse}) {
+    Iterable<E> satisfying = where(test);
     if (satisfying.length == 0) {
       return (orElse ?? (throw StateError("expected orElse for unsatisfied test")))();
     }
@@ -64,7 +85,7 @@ class LazyList<T> implements List<T> {
     return false;
   }
   @override
-  bool any(bool Function(T element) test) {
+  bool any(bool Function(E element) test) {
     for (int i = 0; i < length; i++) {
       if (test(this[i])) {
         return true;
@@ -73,7 +94,7 @@ class LazyList<T> implements List<T> {
     return false;
   }
   @override
-  bool every(bool Function(T element) test) {
+  bool every(bool Function(E element) test) {
     for (int i = 0; i < length; i++) {
       if (!test(this[i])) {
         return false;
@@ -84,29 +105,29 @@ class LazyList<T> implements List<T> {
 
   // transform
   @override
-  Iterable<T> get reversed => [for (int i = length - 1; i >= 0; i--) this[i]];
+  Iterable<E> get reversed => [for (int i = length - 1; i >= 0; i--) this[i]];
   @override
-  List<T> operator +(List<T> other) => LazyList(
+  List<E> operator +(List<E> other) => LazyList(
     length + other.length,
     (i) => i < length ? _constructor(i) : other[i]
   );
   @override
-  Iterable<T> followedBy(Iterable<T> other) => this + other.toList();
+  Iterable<E> followedBy(Iterable<E> other) => this + other.toList();
   @override
-  Map<int, T> asMap() => LazyMap({for (int i = 0; i < length; i++) i: () => _constructor(i)});
+  Map<int, E> asMap() => LazyMap({for (int i = 0; i < length; i++) i}, (int i) => _constructor(i));
   @override
-  List<T> toList({bool growable = true}) => (growable
+  List<E> toList({bool growable = true}) => (growable
     ? List.generate(length, (i) => this[i])
     : this
   );
   @override
-  Set<T> toSet() => {for (int i = 0; i < length; i++) this[i]};
+  Set<E> toSet() => {for (int i = 0; i < length; i++) this[i]};
   @override
-  Iterable<R> expand<R>(Iterable<R> Function(T element) toElements) => [
+  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) => [
     for (int i = 0; i < length; i++) toElements(this[i])
   ].reduce((a, b) => a.toList() + b.toList());
   @override
-  R fold<R>(R initialValue, R Function(R previousValue, T element) combine) {
+  T fold<T>(T initialValue, T Function(T previousValue, E element) combine) {
     var value = initialValue;
     for (int i = 0; i < length; i++) {
       value = combine(value, this[i]);
@@ -120,98 +141,138 @@ class LazyList<T> implements List<T> {
 
   // select
   @override
-  T firstWhere(bool Function(T element) test, {T Function()? orElse}) {
-    // TODO: implement firstWhere
-    throw UnimplementedError();
+  E firstWhere(bool Function(E) test, {E Function()? orElse}) {
+    for (int i = 0; i < length; i++) {
+      E item = this[i];
+      if (test(item)) {
+        return item;
+      }
+    }
+    return orElse!();
   }
   @override
-  Iterable<T> getRange(int start, int end) {
-    // TODO: implement getRange
-    throw UnimplementedError();
+  Iterable<E> getRange(int start, int end) => 
+    [for (int i = start; i < end; i++) 
+      this[i]
+    ]
+  ;
+  @override
+  int indexOf(E element, [int start = 0]) {
+    for (int i = start; i < length; i++) {
+      if (this[i] == element) {
+        return i;
+      }
+    }
+    return -1;
   }
   @override
-  int indexOf(T element, [int start = 0]) {
-    // TODO: implement indexOf
-    throw UnimplementedError();
+  int indexWhere(bool Function(E) test, [int start = 0]) {
+    for (int i = start; i < length; i++) {
+      if (test(this[i])) {
+        return i;
+      }
+    }
+    return -1;
   }
   @override
-  int indexWhere(bool Function(T element) test, [int start = 0]) {
-    // TODO: implement indexWhere
-    throw UnimplementedError();
+  int lastIndexOf(E element, [int? start]) {
+    for (int i = start ?? length - 1; i >= 0; i--) {
+      if (this[i] == element) {
+        return i;
+      }
+    }
+    return -1;
   }
   @override
-  int lastIndexOf(T element, [int? start]) {
-    // TODO: implement lastIndexOf
-    throw UnimplementedError();
+  int lastIndexWhere(bool Function(E element) test, [int? start]) {
+    for (int i = start ?? length - 1; i >= 0; i--) {
+      if (test(this[i])) {
+        return i;
+      }
+    }
+    return -1;
   }
   @override
-  int lastIndexWhere(bool Function(T element) test, [int? start]) {
-    // TODO: implement lastIndexWhere
-    throw UnimplementedError();
+  E lastWhere(bool Function(E element) test, {E Function()? orElse}) {
+    for (int i = length - 1; i >= 0; i--) {
+      E item = this[i];
+      if (test(item)) {
+        return item;
+      }
+    }
+    return orElse!();
   }
   @override
-  T lastWhere(bool Function(T element) test, {T Function()? orElse}) {
-    // TODO: implement lastWhere
-    throw UnimplementedError();
+  Iterable<T> map<T>(T Function(E e) toElement) =>
+    [for (int i = 0; i < length; i++)
+      toElement(this[i])
+    ]
+  ;
+  @override
+  E reduce(E Function(E value, E element) combine) {
+    E result = this[0];
+    for (int i = 1; i < length; i++) {
+      result = combine(result, this[i]);
+    }
+    return result;
   }
   @override
-  Iterable<R> map<R>(R Function(T e) toElement) {
-    // TODO: implement map
-    throw UnimplementedError();
-  }
+  Iterable<E> skip(int count) =>
+    [for (int i = count; i < length; i++)
+      this[i]
+    ]
+  ;
   @override
-  T reduce(T Function(T value, T element) combine) {
-    // TODO: implement reduce
-    throw UnimplementedError();
-  }
+  Iterable<E> skipWhile(bool Function(E value) test) =>
+    [for (int i = indexWhere((item) => !test(item)); i < length; i++)
+      this[i]
+    ]
+  ;
   @override
-  Iterable<T> skip(int count) {
-    // TODO: implement skip
-    throw UnimplementedError();
-  }
+  List<E> sublist(int start, [int? end]) =>
+    [for (int i = start; i < (end ?? length); i++)
+      this[i]
+    ]
+  ;
   @override
-  Iterable<T> skipWhile(bool Function(T value) test) {
-    // TODO: implement skipWhile
-    throw UnimplementedError();
-  }
+  Iterable<E> take(int count) =>
+    [for (int i = 0; i < count; i++)
+      this[i]
+    ]
+  ;
   @override
-  List<T> sublist(int start, [int? end]) {
-    // TODO: implement sublist
-    throw UnimplementedError();
-  }
+  Iterable<E> takeWhile(bool Function(E value) test) =>
+    [for (int i = 0; i < length && test(this[i]); i++)
+      this[i]
+    ]
+  ;
   @override
-  Iterable<T> take(int count) {
-    // TODO: implement take
-    throw UnimplementedError();
-  }
+  Iterable<E> where(bool Function(E element) test) =>
+    [for (int i = 0; i < length; i++)
+      if (test(this[i])) (
+        this[i]
+      )
+    ]
+  ;
   @override
-  Iterable<T> takeWhile(bool Function(T value) test) {
-    // TODO: implement takeWhile
-    throw UnimplementedError();
-  }
-  @override
-  Iterable<T> where(bool Function(T element) test) {
-    // TODO: implement where
-    throw UnimplementedError();
-  }
-  @override
-  Iterable<R> whereType<R>() => this
-    .where((item) => item is R)
-    .map((item) => item as R)
+  Iterable<T> whereType<T>() => this
+    .where((item) => item is T)
+    .map((item) => item as T)
   ;
 
   // iterate
   @override
-  void forEach(void Function(T element) action) {
-    // TODO: implement forEach
+  void forEach(void Function(E element) action) {
+    for (int i = 0; i < length; i++) {
+      action(this[i]);
+    }
   }
   @override
-  // TODO: implement iterator
-  Iterator<T> get iterator => throw UnimplementedError();
+  Iterator<E> get iterator => LazyListIterator(this);
 
   // unimplemented
   @override
-  List<R> cast<R>() {
+  List<T> cast<T>() {
     throw UnimplementedError();
   }
 
@@ -221,15 +282,15 @@ class LazyList<T> implements List<T> {
     throw UnsupportedError("cannot modify length of LazyList");
   }
   @override
-  void operator []=(int index, T value) {
+  void operator []=(int index, E value) {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
   @override
-  void add(T value) {
+  void add(E value) {
     throw UnsupportedError("cannot add to LazyList");
   }
   @override
-  void addAll(Iterable<T> iterable) {
+  void addAll(Iterable<E> iterable) {
     throw UnsupportedError("cannot add to LazyList");
   }
   @override
@@ -237,15 +298,15 @@ class LazyList<T> implements List<T> {
     throw UnsupportedError("cannot clear LazyList");
   }
   @override
-  void fillRange(int start, int end, [T? fillValue]) {
+  void fillRange(int start, int end, [E? fillValue]) {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
   @override
-  void insert(int index, T element) {
+  void insert(int index, E element) {
     throw UnsupportedError("cannot add to LazyList");
   }
   @override
-  void insertAll(int index, Iterable<T> iterable) {
+  void insertAll(int index, Iterable<E> iterable) {
     throw UnsupportedError("cannot add to LazyList");
   }
   @override
@@ -253,11 +314,11 @@ class LazyList<T> implements List<T> {
     throw UnsupportedError("cannot remove from LazyList");
   }
   @override
-  T removeAt(int index) {
+  E removeAt(int index) {
     throw UnsupportedError("cannot remove from LazyList");
   }
   @override
-  T removeLast() {
+  E removeLast() {
     throw UnsupportedError("cannot remove from LazyList");
   }
   @override
@@ -265,23 +326,23 @@ class LazyList<T> implements List<T> {
     throw UnsupportedError("cannot remove from LazyList");
   }
   @override
-  void removeWhere(bool Function(T element) test) {
+  void removeWhere(bool Function(E element) test) {
     throw UnsupportedError("cannot remove from LazyList");
   }
   @override
-  void replaceRange(int start, int end, Iterable<T> replacements) {
+  void replaceRange(int start, int end, Iterable<E> replacements) {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
   @override
-  void retainWhere(bool Function(T element) test) {
+  void retainWhere(bool Function(E element) test) {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
   @override
-  void setAll(int index, Iterable<T> iterable) {
+  void setAll(int index, Iterable<E> iterable) {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
   @override
-  void setRange(int start, int end, Iterable<T> iterable, [int skipCount = 0]) {
+  void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
   @override
@@ -289,7 +350,7 @@ class LazyList<T> implements List<T> {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
   @override
-  void sort([int Function(T a, T b)? compare]) {
+  void sort([int Function(E a, E b)? compare]) {
     throw UnsupportedError("cannot modify contents of LazyList");
   }
 }

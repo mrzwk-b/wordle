@@ -4,13 +4,17 @@ UnorderedIterableEquality eq = UnorderedIterableEquality();
 bool setEquals<T>(Iterable<T> a, Iterable<T> b) => eq.equals(a, b);
 
 class LazyMap<K, V> implements Map<K, V> {
+  final Set<K> _domain;
+  final V Function(K) _constructor;
   final Map<K, V> _established = {};
-  final Map<K, V Function()> _constructors;
-  LazyMap(Map<K, V Function()> constructors): _constructors = constructors;
+  LazyMap(Set<K> domain, V Function(K) constructor): 
+    _domain = domain,
+    _constructor = constructor
+  ;
 
   // getters
   @override
-  Iterable<K> get keys => _constructors.keys.toSet().union(_established.keys.toSet());
+  Iterable<K> get keys => _domain;
   @override
   Iterable<V> get values => [for (K key in keys) this[key]!];
   @override
@@ -32,12 +36,12 @@ class LazyMap<K, V> implements Map<K, V> {
   // read
   @override
   V? operator [](Object? key) {
-    if (!(key is K && _constructors.containsKey(key))) {
+    if (!(key is K && keys.contains(key))) {
       return null;
     }
 
     if (!_established.containsKey(key)) {
-      _established[key] = _constructors[key]!();
+      _established[key] = _constructor(key);
     }
     return _established[key];
   }
@@ -47,68 +51,6 @@ class LazyMap<K, V> implements Map<K, V> {
   bool get isEmpty => keys.isEmpty;
   @override
   bool get isNotEmpty => keys.isNotEmpty;
-
-  // add
-  @override
-  void addAll(Map<K, V> other) {
-    for (MapEntry<K, V> entry in other.entries) {
-      this[entry.key] = entry.value;
-    }
-  }
-  @override
-  void addEntries(Iterable<MapEntry<K, V>> newEntries) {
-    for (MapEntry<K, V> entry in newEntries) {
-      this[entry.key] = entry.value;
-    }
-  }
-  @override
-  V putIfAbsent(K key, V Function() ifAbsent) {
-    if (!this.containsKey(key)) {
-      _constructors[key] = ifAbsent;
-    }
-    return this[key]!;
-  }
-  
-  // edit
-  @override
-  void operator []=(K key, V value) {
-    _established[key] = value;
-  }
-  @override
-  V update(K key, V Function(V value) update, {V Function()? ifAbsent}) {
-    this[key] = update(this[key] ?? ifAbsent!());
-    return this[key]!;
-  }
-  @override
-  void updateAll(V Function(K key, V value) update) {
-    for (K key in keys) {
-      update(key, this[key]!);
-    }
-  }
-
-  // remove
-  @override
-  V? remove(Object? key) {
-    if (!keys.contains(key)) {
-      return null;
-    }
-
-    V value = this[key]!;
-    _established.remove(key);
-    _constructors.remove(key);
-    return value;
-  }
-  @override
-  void removeWhere(bool Function(K key, V value) test) {
-    for (K key in keys.where((key) => test(key, this[key]!))) {
-      remove(key);
-    }
-  }
-  @override
-  void clear() {
-    _established.clear();
-    _constructors.clear();
-  }
 
   // iteration
   @override
@@ -138,11 +80,49 @@ class LazyMap<K, V> implements Map<K, V> {
     keys.every((key) => other[key] == this[key])
   ;
   @override
-  int get hashCode => _constructors.hashCode;
+  int get hashCode => _domain.hashCode ^ (31 * _constructor.hashCode);
   @override
   String toString() => "{${
     [for (K key in keys)
       "$key: ${_established.containsKey(key) ? _established[key] : "__UNINITIALIZED__"}"
     ].join(', ')
   }}";
+
+  // unsupported
+  @override
+  void addAll(Map<K, V> other) {
+    throw UnsupportedError("cannot add to LazyMap");
+  }
+  @override
+  void addEntries(Iterable<MapEntry<K, V>> newEntries) {
+    throw UnsupportedError("cannot add to LazyMap");
+  }
+  @override
+  V putIfAbsent(K key, V Function() ifAbsent) {
+    throw UnsupportedError("cannot add to LazyMap");
+  }
+  @override
+  void operator []=(K key, V value) {
+    throw UnsupportedError("cannot modify contents of LazyMap");
+  }
+  @override
+  V update(K key, V Function(V value) update, {V Function()? ifAbsent}) {
+    throw UnsupportedError("cannot modify contents of LazyMap");
+  }
+  @override
+  void updateAll(V Function(K key, V value) update) {
+    throw UnsupportedError("cannot modify contents of LazyMap");
+  }
+  @override
+  V? remove(Object? key) {
+    throw UnsupportedError("cannot remove from LazyMap");
+  }
+  @override
+  void removeWhere(bool Function(K key, V value) test) {
+    throw UnsupportedError("cannot remove from LazyMap");
+  }
+  @override
+  void clear() {
+    throw UnsupportedError("cannot remove from LazyMap");
+  }
 }

@@ -63,44 +63,40 @@ class Data {
     return _contextualDistributions!;
   }
 
-  LazyMap<String, Evaluator>? _evaluators;
-  LazyMap<String, Evaluator> get evaluators {
-    _evaluators ??= LazyMap({
+  Map<String, Evaluator>? _evaluators;
+  Map<String, Evaluator> get evaluators {
+    final Map<String, Evaluator Function()> evaluatorConstructors = {
       "positionless": () => PositionlessEvaluator(frequencyDistributions),
       "positional": () => PositionalEvaluator(frequencyDistributions),
       "contextual": () => ContextualEvaluator(contextualDistributions),
       "balancing": () => BalancingEvaluator(frequencyDistributions, options.length),
-    });
+    };
+    _evaluators ??= LazyMap(
+      evaluatorConstructors.keys.toSet(),
+      (String name) => evaluatorConstructors[name]!()
+    );
     return _evaluators!;
   }
 
   Map<String, Map<String, int>>? _evaluations;
   Map<String, Map<String, int>> get evaluations {
-    _evaluations ??=
-      Map.fromEntries(evaluators.entries.map((entry) => 
-        MapEntry(
-          entry.key,
-          Map.fromIterable(options, 
-            key: (word) => word,
-            value: (word) => entry.value.evaluate(word)
-          )
-        )
-      ))
-    ;
+    _evaluations ??= LazyMap(
+      evaluators.keys.toSet(),
+      (name) => LazyMap(
+        options,
+        (word) => evaluators[name]!.evaluate(word)
+      )
+    );
     return _evaluations!;
   }
 
   Map<String, List<String>>? _rankings;
   /// kept in best to worst order
   Map<String, List<String>> get rankings {
-    _rankings ??=
-      Map.fromEntries(evaluations.entries.map((entry) => 
-        MapEntry(
-          entry.key,
-          rank(entry.value, (a, b) => evaluators[entry.key]!.compare(a, b))
-        )
-      ));
-    ;
+    _rankings ??= LazyMap(
+      evaluators.keys.toSet(),
+      (name) => rank(evaluations[name]!, (a, b) => evaluators[name]!.compare(a, b))
+    );
     return _rankings!;
   }
 
