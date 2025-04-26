@@ -249,37 +249,45 @@ Query parse(final String input) {
           throw QueryException("expected int argument in position 3, found ${queryArgs[2]}");
         }
 
-        // evaluator count
-        if (queryArgs.length == 3) {
-          return EvaluatorRankQuery(queryArgs[1], count);
-        }
-        // evaluator count -
-        else if (queryArgs[3] == '-') {
-          if (queryArgs.length != 4) {
-            throw QueryException('expected "-" as final argument to EvaluatorRankQuery, found ${queryArgs[4]}');
-          }
-          return EvaluatorRankQuery(queryArgs[1], count, decreasing: false);
-        }
-        else {
-          int offset;
-          try {
-            offset = int.parse(queryArgs[3]);
-          }
-          on FormatException {
-            throw QueryException("expected int argument in position 4, found ${queryArgs[3]}");
-          }
-          // evaluator count offset
-          if (queryArgs.length == 4) {
-            return EvaluatorRankQuery(queryArgs[1], count, offset: offset);
-          }
-          // evaluator count offset -
-          else {
-            if (queryArgs[4] != '-') {
-              throw QueryException('expected "-" as final argument to EvaluatorRankQuery, found ${queryArgs[4]}');
+        int? offset;
+        bool declining = true;
+        int? vowelTolerance;
+
+        for (String arg in queryArgs.sublist(3)) {
+          if (int.tryParse(arg) != null) {
+            if (declining && vowelTolerance == null) {
+              offset = int.parse(arg);
             }
-            return EvaluatorRankQuery(queryArgs[1], count, offset: offset, decreasing: false);
+            else {
+              throw QueryException('offset argument must come before reversal or vowel tolerance');
+            }
+          }
+          else if (arg == '-') {
+            if (vowelTolerance == null) {
+              declining = false;
+            }
+            else {
+              throw QueryException('reversal argument must come before vowel tolerance');
+            }
+          }
+          else {
+            Iterable<RegExpMatch> matches = RegExp('@([0-5])').allMatches(arg);
+            if (matches.length == 1) {
+              vowelTolerance = int.parse(matches.single.group(1)!);
+            }
+            else {
+              throw QueryException('vowel tolerance argument must look like "@#" where # is a digit 0-5, found $arg');
+            }
           }
         }
+
+        return EvaluatorRankQuery(
+          queryArgs[1],
+          count,
+          offset: offset ?? 0,
+          decreasing: declining,
+          vowelTolerance: vowelTolerance ?? 5,
+        );
       }
     }
     case 'w': {

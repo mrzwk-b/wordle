@@ -42,7 +42,7 @@ class EvaluatorRankQuery extends Query {
   @override
   String report() => [
     for (final String word in execute()) (
-      "$word: ${data.evaluationReport(evaluatorName, word)}"
+      "$word: ${data.evaluationReport(evaluatorName, word, vowelTolerance)}"
     )
   ].join('\n');
 }

@@ -3,8 +3,7 @@ msg:
 - enter the help query from which you can see that option
 - followed by its given abbreviation
 - e.g,
-- 
-  - '"h x" to see help message about expression queries'
+- - '"h x" to see help message about expression queries'
   - '"h x p" to see help message about expression query patterns'
   - etc.
 
@@ -13,8 +12,7 @@ msg:
   msg:
   - runs an automated game of wordle using the given answer and evaluator
   - e.g., "b positional crest"
-  -
-    - to see how a bot making guesses from the top of the positional evaluator
+  - - to see how a bot making guesses from the top of the positional evaluator
     - would play a game where "crest" was the answer
   - puts game sequence into the tree
   - e.g., "s > positional crest" to enter the game branch for the above example
@@ -26,8 +24,7 @@ msg:
   - then tries to figure out what guesses generated those responses
   - pass "*" as a final argument to allow guesses that have been used before
   - doesn't yield results where
-  -
-    - guesses aren't in the list of possible answers
+  - - guesses aren't in the list of possible answers
     - hard mode is violated, i.e., guesses don't make use of all information obtained so far
 
 - name: letter
@@ -38,8 +35,7 @@ msg:
     abbr: '1'
     msg:
     - pass a single letter as an argument to see its distribution, i.e.,
-    -
-      - total frequency,
+    - - total frequency,
       - frequency in each slot,
       - and letters sorted by how often they precede and follow it (# represents a word boundary)
     - e.g, "l e" to see data for "e"
@@ -47,8 +43,7 @@ msg:
     abbr: '0'
     msg:
     - pass no argument to see data for all letters, i.e.,
-    -
-      - total frequency & frequency in each slot
+    - - total frequency & frequency in each slot
     - e.g., "l"
 
 - name: quit
@@ -105,8 +100,7 @@ msg:
     - exclude words that are impossible based on the information Wordle gives after a guess
     - pass the guessed word followed by its result
     - "the 2nd argument (the guess' result) allows only 3 types of characters:"
-    -
-      - "\"b\" (blank) the letter guessed in that slot doesn't occur anywhere in the target word"
+    - - "\"b\" (blank) the letter guessed in that slot doesn't occur anywhere in the target word"
       - '"y" (yellow) the letter guessed in that slot occurs in a different slot in the target word'
       - '"g" (green) the letter guessed in that slot occurs in that slot in the target word'
     - e.g., "r think ybggb" would be a guess restriction in a game where the answer was "glint"
@@ -120,34 +114,35 @@ msg:
     abbr: k
     msg:
     - pass an evaluator name followed by, 
-    -
-      - a number of words to fetch,
+    - - a number of words to fetch,
       - optionally 
-      -
-        - an number to offset the fetch by from the end of the list,
+      - - an number to offset the fetch by from the end of the list,
         - a "-" if you want to fetch from the bottom instead of the top
-    - e.g., "v positional 10 5 -" to see the bottom 15 words minus the bottom 5 per the positional evaluator
+        - the "@" symbol followed by a number to set vowel tolerance
+    - 'e.g., "v positional 10 5 - @2" to see:'
+    - - the bottom 15 words 
+      - minus the bottom 5
+      - according to the positional evaluator
+      - at a vowel tolerance of 2
   - name: range
     abbr: g
     msg:
     - pass a range to see results for all words within that range
-    -
-      - range boundaries can be specified by either numerical score or a word itself
+    - - range boundaries can be specified by either numerical score or a word itself
       - ranges are defined by how good the score is, not necessarily whether it's greater or less
       - ranges formatted as "worst:best" or ":worst/best:"
       - ranges must contain a ":", but do not require either an upper or lower bound
     - e.g., 
-    - 
-      - '"v positional :50" to see all words with a score worse than 50 with no lower bound'
+    - - '"v positional :50" to see all words with a score worse than 50 with no lower bound'
       - '"v positional chose:" to see all words with a score at least as good as that of "chose"'
       - '"v positional :guess:" to see all words with a score equal to guess'
       - '"v positional :" to see all words'
+    - optionally also pass a vowel tolerance just like with ranked queries
   - name: results
     abbr: s
     msg:
     - for each word meeting the criteria specified in the query, displays 
-    -
-      - the word
+    - - the word
       - its score according to the given evaluator
       - its rank out of the total number of options
   - name: list of evaluators
@@ -174,11 +169,16 @@ msg:
       msg:
       - evaluates each letter of a potential guess based on
       - 'an attempt to balance how often that letter:'
-      -
-        - in that position
+      - - in that position
         - in any other position
         - in no positions
       - lower scores are better
+  - name: vowel tolerance
+    abbr: v
+    msg:
+    - for each vowel in the word after a given limit, 
+    - - evaluations of that word will be worse by a factor of 2
+    - this is also the strategy used to deprioritize words with repeated letters
 
 - name: word
   abbr: w
@@ -191,8 +191,7 @@ msg:
   msg:
   - pass a pattern to match against words
   - 'optionally:'
-  -
-    - pass a set of letters preceded by "+/-" to require to be included/excluded
+  - - pass a set of letters preceded by "+/-" to require to be included/excluded
     - pass a "!" at the end to negate the entire expression
   - name: fixed
     abbr: f
@@ -217,8 +216,7 @@ msg:
       - included letters must be preceded with "+"
       - type a letter multiple times to require it be included that many times
       - e.g., "x _ +ll" to see all words with at least 2 "l"s
-      - 
-        - distinct from "x ll" in that the latter matches a sequence of 2 consecutive "l"s,
+      - - distinct from "x ll" in that the latter matches a sequence of 2 consecutive "l"s,
         - whereas the former matches words containing 2 "l"s anywhere
     - name: exclude
       abbr: e
@@ -235,8 +233,7 @@ msg:
     abbr: p
     msg:
     - 'patterns consist of:'
-    -
-      - normal letters
+    - - normal letters
       - special tokens that match more general word elements
       - numbers 1-5
       - quantifiers
@@ -278,7 +275,6 @@ msg:
       abbr: q
       msg:
       - quantifiers cause the preceding token to match different numbers of instances
-      -
-        - '^: 0 or 1'
+      - - '^: 0 or 1'
         - '&: 1 or more'
         - '*: 0 or more'
