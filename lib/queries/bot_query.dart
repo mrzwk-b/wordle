@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:wordle/data/data.dart';
-import 'package:wordle/data/data_manager.dart';
+import 'package:wordle/data/data_tree.dart';
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';
 import 'package:wordle/queries/guess_query.dart';

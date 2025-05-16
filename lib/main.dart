@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:wordle/data/data.dart';
-import 'package:wordle/data/data_manager.dart';
+import 'package:wordle/data/data_tree.dart';
 import 'package:wordle/data/scrape.dart';
 import 'package:wordle/parse.dart';
 import 'package:wordle/utils/tree.dart';

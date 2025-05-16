@@ -1,5 +1,5 @@
 import 'package:wordle/data/data.dart';
-import 'package:wordle/data/data_manager.dart';
+import 'package:wordle/data/data_tree.dart';
 import 'package:wordle/data/distribution.dart';
 import 'package:wordle/queries/query.dart';
 
