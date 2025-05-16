@@ -1,5 +1,5 @@
 import 'package:wordle/data/data_tree.dart';
-import 'package:wordle/data/distribution.dart';
+import 'package:wordle/data/letter_distribution.dart';
 import 'package:wordle/queries/bot_query.dart';
 import 'package:wordle/queries/evaluator_range_query.dart';
 import 'package:wordle/queries/evaluator_rank_query.dart';

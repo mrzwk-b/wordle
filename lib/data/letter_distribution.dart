@@ -1,4 +1,4 @@
-import 'package:wordle/data/data.dart';
+import 'package:wordle/data/word_data.dart';
 
 final Set<String> alphabet = "abcdefghijklmnopqrstuvwxyz".split("").toSet();
 

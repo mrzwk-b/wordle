@@ -1,4 +1,4 @@
-import 'package:wordle/data/distribution.dart';
+import 'package:wordle/data/letter_distribution.dart';
 import 'package:wordle/evaluators/balancing_evaluator.dart';
 import 'package:wordle/evaluators/contextual_evaluator.dart';
 import 'package:wordle/evaluators/evaluator.dart';

@@ -1,4 +1,4 @@
-import 'package:wordle/data/distribution.dart';
+import 'package:wordle/data/letter_distribution.dart';
 import 'package:wordle/evaluators/evaluator.dart';
 
 class ContextualEvaluator extends Evaluator {

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:wordle/data/data.dart';
+import 'package:wordle/data/word_data.dart';
 import 'package:wordle/data/data_tree.dart';
 import 'package:wordle/queries/guess_query.dart';
 import 'package:wordle/queries/query.dart';

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:wordle/data/data.dart';
+import 'package:wordle/data/word_data.dart';
 import 'package:wordle/data/data_tree.dart';
 import 'package:wordle/data/scrape.dart';
 import 'package:wordle/parse.dart';
@@ -34,7 +34,7 @@ void main(List<String> argStrs) async {
     }),
   ]) {await assignment;}
   
-  dataTree = Tree(TreeEntry('', Data(possible, past)));
+  dataTree = Tree(Node('', Data(possible, past)));
 
   while (true) {
     print("enter a query (h for help):");

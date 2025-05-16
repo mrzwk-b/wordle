@@ -1,29 +1,29 @@
-import 'package:wordle/data/data.dart';
+import 'package:wordle/data/word_data.dart';
 import 'package:wordle/utils/tree.dart';
 import 'package:wordle/utils/wordle_exception.dart';
 
-class DataException extends WordleException {
+class _DataException extends WordleException {
   String message;
-  DataException(this.message);
+  _DataException(this.message);
   @override String toString() => "DataException: $message";
 }
 
-class TreeEntry {
+class Node {
   final String name;
   final Data data;
-  TreeEntry(this.name, this.data);
+  Node(this.name, this.data);
 
   @override
   String toString() => '"$name"';
 }
 
-late final Tree<TreeEntry> dataTree;
+late final Tree<Node> dataTree;
 List<int> pathToHead = [];
 
-Tree<TreeEntry> get head => navigate(dataTree, pathToHead);
+Tree<Node> get head => navigate(dataTree, pathToHead);
 Data get data => head.value.data;
 
-Tree<TreeEntry> navigate<T>(final Tree<TreeEntry> tree, final List<T> path) =>
+Tree<Node> navigate<T>(final Tree<Node> tree, final List<T> path) =>
   (path.isEmpty
     ? tree
     : (0 is T
@@ -35,9 +35,9 @@ Tree<TreeEntry> navigate<T>(final Tree<TreeEntry> tree, final List<T> path) =>
 
 void branch(Data data, String name, [bool advance = true]) {
   if (head.children.any((tree) => tree.value.name == name)) {
-    throw DataException("cannot add duplicate name to children");
+    throw _DataException("cannot add duplicate name to children");
   }
-  head.add(TreeEntry(name, data));
+  head.add(Node(name, data));
   if (advance) {
     moveForward(name);
   }
@@ -50,7 +50,7 @@ void prune([String? name]) {
   else {
     int nameIndex = head.children.indexWhere((entry) => entry.value.name == name);
     if (nameIndex == -1) {
-      throw DataException("cannot find child with name $name");
+      throw _DataException("cannot find child with name $name");
     }
     head.children.removeAt(nameIndex);  
   }
@@ -74,7 +74,7 @@ void moveBack({int? count, String? name}) {
       }
       on RangeError catch (_) {
         pathToHead = priorHead;
-        throw DataException("cannot move back to nonexistent position $name");
+        throw _DataException("cannot move back to nonexistent position $name");
       }
     }
   }
@@ -83,7 +83,7 @@ void moveBack({int? count, String? name}) {
 void moveForward(String name) {
   int nameIndex = head.children.indexWhere((entry) => entry.value.name == name);
   if (nameIndex == -1) {
-    throw DataException("cannot find child with name $name");
+    throw _DataException("cannot find child with name $name");
   }
   pathToHead.add(nameIndex);
 }
