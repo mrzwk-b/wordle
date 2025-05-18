@@ -7,10 +7,17 @@ import 'package:wordle/evaluators/positionless_evaluator.dart';
 import 'package:wordle/utils/lazy_list.dart';
 import 'package:wordle/utils/lazy_map.dart';
 
+/// lazy, cached generator for all values derived from a set of possible and past words
 class Data {
   final Set<String> possible;
   final Set<String> past;
   final Set<String> options;
+
+  // T? _derivedValue
+  // T get derivedValue {
+  //   _derivedValue ??= derive()
+  //   return derivedValue
+  // }
 
   Map<String, FrequencyDistribution>? _frequencyDistributions;
   Map<String, FrequencyDistribution> get frequencyDistributions {

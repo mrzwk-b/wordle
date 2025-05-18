@@ -6,14 +6,7 @@ class Range {
   final String? bestWord;
   int? worstScore;
   int? bestScore;
-  Range({this.worstScore, this.worstWord, this.bestScore, this.bestWord}) {
-    if (worstScore != null && worstWord != null) {
-      throw QueryException("cannot create Range with 2 starts");
-    }
-    if (bestScore != null && bestWord != null) {
-      throw QueryException("cannot create Range with 2 ends");
-    }
-  }
+  Range({this.worstScore, this.worstWord, this.bestScore, this.bestWord});
 }
 
 class EvaluatorRangeQuery extends Query {
@@ -44,10 +37,9 @@ class EvaluatorRangeQuery extends Query {
         ;
       }
       // find latest index of word with score at best bestScore
-      start = wordRankings.indexOf(wordRankings.firstWhere(
-        (word) => data.evaluators[evaluatorName]!.compare(wordEvaluations[word]!, range.bestScore!) > -1,
-        orElse: () => "",
-      ));
+      start = wordRankings.indexWhere((word) =>
+        data.evaluators[evaluatorName]!.compare(wordEvaluations[word]!, range.bestScore!) > -1,
+      );
       start = start == -1 ? wordRankings.length : start;
     }
     // find end index in rankings
@@ -60,8 +52,8 @@ class EvaluatorRangeQuery extends Query {
         ;
       }
       // find earliest index of word with score at worst worstScore
-      end = wordRankings.lastIndexWhere(
-        (word) => data.evaluators[evaluatorName]!.compare(wordEvaluations[word]!, range.worstScore!) < 1 
+      end = wordRankings.lastIndexWhere((word) =>
+        data.evaluators[evaluatorName]!.compare(wordEvaluations[word]!, range.worstScore!) < 1 
       );
       end = end == -1 ? 0 : end + 1;
     }

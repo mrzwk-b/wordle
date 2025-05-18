@@ -8,22 +8,22 @@ class _DataException extends WordleException {
   @override String toString() => "DataException: $message";
 }
 
-class Node {
+class DataNode {
   final String name;
   final Data data;
-  Node(this.name, this.data);
+  DataNode(this.name, this.data);
 
   @override
   String toString() => '"$name"';
 }
 
-late final Tree<Node> dataTree;
+late final Tree<DataNode> dataTree;
 List<int> pathToHead = [];
 
-Tree<Node> get head => navigate(dataTree, pathToHead);
+Tree<DataNode> get head => navigate(dataTree, pathToHead);
 Data get data => head.value.data;
 
-Tree<Node> navigate<T>(final Tree<Node> tree, final List<T> path) =>
+Tree<DataNode> navigate<T>(final Tree<DataNode> tree, final List<T> path) =>
   (path.isEmpty
     ? tree
     : (0 is T
@@ -37,7 +37,7 @@ void branch(Data data, String name, [bool advance = true]) {
   if (head.children.any((tree) => tree.value.name == name)) {
     throw _DataException("cannot add duplicate name to children");
   }
-  head.add(Node(name, data));
+  head.add(DataNode(name, data));
   if (advance) {
     moveForward(name);
   }

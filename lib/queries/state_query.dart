@@ -46,7 +46,7 @@ class StateQuery extends Query {
           ,
         ]) "  $line",
         "${head.children.length} branch${head.children.length == 1 ? "" : "es"} forward:",
-        for (Tree<Node> child in head.children) "  - ${child.value.name}",
+        for (Tree<DataNode> child in head.children) "  - ${child.value.name}",
       ].join('\n');
     }
     else {
