@@ -13,8 +13,8 @@ class BalancingEvaluator extends Evaluator {
     distribution = freqDist.map((letter, frequencies) => MapEntry(
       letter,
       [for (int i = 0; i < 5; i++) {
-        LetterLocation.There: frequencies.positionCounts[i],
-        LetterLocation.Elsewhere: frequencies.total - frequencies.positionCounts[i],
+        LetterLocation.There: frequencies.positionalCounts[i],
+        LetterLocation.Elsewhere: frequencies.total - frequencies.positionalCounts[i],
         LetterLocation.Nowhere: nowhereCounts[letter]!,
       }]
     ));

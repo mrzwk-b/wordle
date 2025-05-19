@@ -4,10 +4,10 @@ final Set<String> alphabet = "abcdefghijklmnopqrstuvwxyz".split("").toSet();
 
 class FrequencyDistribution {
   int total;
-  final List<int> positionCounts;
-  FrequencyDistribution(this.positionCounts): total = positionCounts.reduce((a, b) => a + b);
+  final List<int> positionalCounts;
+  FrequencyDistribution(this.positionalCounts): total = positionalCounts.reduce((a, b) => a + b);
   void add(int index, [int amount = 1]) {
-    positionCounts[index] += amount;
+    positionalCounts[index] += amount;
     total += amount;
   }
 }

@@ -206,7 +206,7 @@ Query parse(final String input) {
           }
           if (wordBounds[2] != "") {
             throw QueryException(
-              '2 colons must completely surround word or value, found ${wordBounds[2]} before'
+              '2 colons must completely surround word or value, found ${wordBounds[2]} after'
             );
           }
           wordBounds = [wordBounds[1], wordBounds[1]];
@@ -215,15 +215,16 @@ Query parse(final String input) {
         List<int?> scoreBounds = List.filled(2, null);
         for (int i = 0; i < 2; i ++) {
           scoreBounds[i] = int.tryParse(wordBounds[i]);
-          if (scoreBounds[i] == null) {
+          if (scoreBounds[i] == null && wordBounds[i].isNotEmpty) {
             if (!isValidWord(wordBounds[i])) {
               throw QueryException('expected 5 letter alphabetic word as limit, found "${wordBounds[i]}"');
             }
           }
           else {
-            if (scoreBounds[i]! < 0) {
+            if ((scoreBounds[i] ?? 0) < 0) {
               throw QueryException('expected nonnegative score limit, found ${scoreBounds[i]}');
             }
+            wordBounds[i] = "";
           }
         }
 

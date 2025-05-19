@@ -21,20 +21,20 @@ class LetterQuery extends Query {
     if (letter == null) {
       return [for (String l in data.frequencyRankings)
         "$l: "
-        "${data.frequencyDistributions[l]!.positionCounts} "
+        "${data.frequencyDistributions[l]!.positionalCounts} "
         "total: ${data.frequencyDistributions[l]!.total}, "
       ].join('\n');
     }
     else {
       return [
-          "${data.frequencyDistributions[letter]!.positionCounts} occurences in each position",
+          "${data.frequencyDistributions[letter]!.positionalCounts} occurences in each position",
           "${[for (int i = 0; i < 5; i++)
             (
               data.frequencyDistributions.values.map(
-                (v) => v.positionCounts[i]
+                (v) => v.positionalCounts[i]
               ).toList()..sort()
             ).reversed.toList().indexOf(
-              data.frequencyDistributions[letter]!.positionCounts[i]
+              data.frequencyDistributions[letter]!.positionalCounts[i]
             ) + 1
           ]}th most common out of 26 in each position",
 
